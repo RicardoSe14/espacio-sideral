@@ -169,21 +169,26 @@ function resizeCanvas() {
 
         window.addEventListener('resize', resizeCanvas);
         
-        document.addEventListener("DOMContentLoaded", () => {
-            resizeCanvas();
-            drawSpace();
-            setupShootingStarTimer();
-
-            // Efecto Spotlight nativo para las tarjetas del ecosistema
-            const cards = document.querySelectorAll('.cosmic-card');
-            cards.forEach(card => {
-                card.addEventListener('mousemove', (e) => {
-                    const rect = card.getBoundingClientRect();
-                    card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-                    card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-                });
+      // --- SUSTITUYE ESTE BLOQUE POR EL QUE YA TIENES ---
+document.addEventListener("DOMContentLoaded", () => {
+    // Retrasamos la ejecución 300ms para asegurar que el motor de Chrome 
+    // haya terminado de pintar el layout base y no bloquee el script
+    setTimeout(() => {
+        resizeCanvas();
+        drawSpace();
+        setupShootingStarTimer();
+        
+        // Efecto Spotlight nativo para las tarjetas del ecosistema
+        const cards = document.querySelectorAll('.cosmic-card');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
             });
         });
+    }, 300);
+});
         
         setTimeout(resizeCanvas, 100);
 
