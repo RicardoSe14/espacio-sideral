@@ -1,0 +1,564 @@
+
+    /* ==========================================================================
+       1. RESET & BASE STYLES (CON TU TIPOGRAFÍA ORIGINAL RECUPERADA)
+       ========================================================================== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Urbanist', sans-serif; /* <--- Tu fuente original devuelta a su lugar */
+    }
+
+    body {
+        background-color: #020206; 
+        color: #ffffff;
+        overflow-x: hidden;
+        min-height: 250vh; 
+        padding: 24px; 
+    }
+
+    /* LIENZO ESPACIAL GLOBAL */
+    #starfield {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1; 
+        background: #020206;
+        pointer-events: none;
+        will-change: transform;
+    }
+
+/* ==========================================================================
+       1. CONTENEDOR CRISTAL (AMPLIADO PARA PANTALLAS GRANDES)
+       ========================================================================== */
+    .app-container {
+        position: relative;
+        width: 100%;
+        max-width: 1700px; /* <--- Subido de 1400px a 1700px para que respire increíble en 1080p */
+        margin: 0 auto;
+        background: linear-gradient(180deg, rgba(3, 4, 12, 0.45) 0%, rgba(1, 1, 5, 0.65) 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.03); 
+        border-radius: 20px; 
+        z-index: 10;
+        overflow: hidden;
+    }
+
+    /* ==========================================================================
+       2. HEADER & LOGO
+       ========================================================================== */
+/* ==========================================================================
+       2. HEADER & LOGO (RESPONSIVO Y ADAPTATIVO ENTRE 1366PX Y 1080P)
+       ========================================================================== */
+    header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        /* El padding se vuelve dinámico para que no flote demasiado alto en pantallas grandes */
+        padding: clamp(24px, 4vh, 40px) clamp(30px, 4vw, 50px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 100;
+        background: transparent !important;
+    }
+
+    .logo img {
+        /* El logo escala sutilmente de 40px en pantallas chicas a 48px en Full HD */
+        height: clamp(60px, 5.9vh, 120px); 
+        opacity: 1; /* Asegúrate de cambiar esto a 1 si quieres que sea visible de inmediato */
+        width: auto;
+        object-fit: contain;
+    }
+
+    .nav-center {
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-center a {
+        color: #8a8b9c;
+        text-decoration: none;
+        /* La fuente escala de 13px (en 1366px) hasta 15.5px (en 1080p) */
+        font-size: clamp(10px, 1.2vw, 18px);
+        font-weight: 600;
+        /* El espacio entre enlaces crece de forma elástica con el ancho de pantalla (vw) */
+        margin: 0 clamp(16px, 1.5vw, 24px);
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        transition: color 0.3s, transform 0.3s;
+    }
+    
+    .nav-center a:hover { 
+        color: #fff; 
+    }
+
+    .header-btn {
+        background: rgba(255, 255, 255, 0.02);
+        color: #d1d2dc;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        /* El padding interno del botón se adapta proporcionalmente */
+        padding: clamp(10px, 1.2vh, 14px) clamp(20px, 1.8vw, 28px);
+        border-radius: 20px;
+        /* El texto del botón acompaña el tamaño del menú */
+        font-size: clamp(10px, 1.2vw, 18px);
+        font-weight: 600;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .header-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+
+    /* ==========================================================================
+       3. HERO SECTION & GEOMETRÍA (100% RESPONSIVO Y ELÁSTICO)
+       ========================================================================== */
+    .hero {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; 
+        align-items: center;
+        text-align: center;
+        padding-top: 150px; 
+        position: relative;
+        background: transparent !important;
+    }
+
+    .hero h1 {
+        /* clamp(mínimo, dinámico, máximo) -> Escala perfectamente entre 1350px y 1080p */
+        font-size: clamp(2.0rem, 4.8vw, 5.2rem); 
+        font-weight: 800;
+        letter-spacing: -1px;
+        line-height: 1.15;
+        margin-bottom: clamp(12px, 2vh, 20px); 
+        max-width: 90%; /* Evita que choque con los bordes del app-container */
+        width: 1100px;
+        background: linear-gradient(180deg, #c3c3f3 0%, #a881b8 50%, #6d3e7a 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .hero p {
+        /* El subtítulo también se encoge de forma sutil en pantallas compactas */
+        font-size: clamp(1rem, 1.4vw, 1.7rem); 
+        color: #9293a4;
+        max-width: 90%;
+        width: 700px; 
+        margin-bottom: clamp(30px, 5vh, 60px); /* El espacio vertical se reduce si la pantalla es baja */
+        line-height: 1.6;
+        font-weight: 400;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .hero-geometry {
+        position: relative;
+        /* El tamaño del logo ahora se calcula en base a la altura disponible (vh) para que nunca se desborde abajo */
+                max-width: 90%;
+        width: clamp(340px, 50vh, 500px);  
+        height: clamp(240px, 44vh, 360px); 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0; 
+        transform: scale(0.8);
+        margin-top: 0; 
+        margin-bottom: 20px; 
+        will-change: transform, opacity, filter;
+        overflow: visible; 
+    }
+
+    .hero-geometry .main-shape {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        z-index: 2;
+        position: relative;
+    }
+
+    /* EFECTO NEBULOSA ADAPTATIVO */
+    .geometry-glow {
+        position: absolute;
+        /* Se adapta proporcionalmente al tamaño que tome la geometría */
+        width: 180%;  
+        height: 180%; 
+        background: radial-gradient(circle, rgba(168, 85, 247, 0.28) 0%, rgba(109, 62, 122, 0.1) 45%, rgba(0, 0, 0, 0) 70%);
+        border-radius: 50%;
+        z-index: 1;
+        filter: blur(min(90px, 8vw)); /* Evita que el blur se vuelva un manchón duro en pantallas pequeñas */
+        pointer-events: none;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); 
+    }
+
+
+    /* ==========================================================================
+       4. SECCIÓN SERVICIOS (GRID CÓSMICO)
+       ========================================================================== */
+    .services {
+        min-height: 100vh;
+        padding: 140px 60px;
+        position: relative;
+        background: transparent !important; 
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .services-header {
+        max-width: 800px;
+        margin-bottom: 80px;
+    }
+
+    .services-header span {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #b082c7;
+        display: block;
+        margin-bottom: 12px;
+    }
+    
+    .services-header h2 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -1px;
+        background: linear-gradient(135deg, #ffffff 0%, #a5a7cc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        width: 100%;
+    }
+
+    .cosmic-card {
+        background: rgba(255, 255, 255, 0.01);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 24px;
+        padding: 50px 40px;
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.4s, transform 0.4s;
+        cursor: pointer;
+        will-change: transform, border-color;
+    }
+
+    .cosmic-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.035) 0%, rgba(0, 0, 0, 0) 60%);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.4s;
+    }
+
+    .cosmic-card:hover {
+        border-color: rgba(176, 130, 199, 0.25);
+        transform: translateY(-8px);
+    }
+
+    .cosmic-card:hover::before { 
+        opacity: 1; 
+    }
+
+    .card-icon {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 35px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .icon-shape {
+        position: absolute;
+        width: 100%; height: 100%;
+        border: 1.5px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .cosmic-card:hover .icon-shape {
+        transform: rotate(180deg);
+        border-color: #b082c7;
+        border-style: solid;
+    }
+
+    .icon-center {
+        width: 12px; height: 12px;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 15px #fff;
+        transition: background 0.4s;
+    }
+
+    .cosmic-card:hover .icon-center {
+        background: #b082c7;
+        box-shadow: 0 0 20px #b082c7;
+    }
+
+    .cosmic-card h3 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+        letter-spacing: -0.5px;
+        color: #fff;
+    }
+
+    .cosmic-card p {
+        font-size: 1rem;
+        color: #8c8d9e;
+        line-height: 1.6;
+    }
+
+    .card-po:hover { box-shadow: 0 20px 50px rgba(139, 92, 246, 0.08); }
+    .card-dev:hover { box-shadow: 0 20px 50px rgba(6, 182, 212, 0.08); }
+    .card-design:hover { box-shadow: 0 20px 50px rgba(236, 72, 153, 0.08); }
+
+    /* ==========================================================================
+       5. PORTFOLIO HORIZONTAL (ANTI-RECORTE EN LAPTOS / 1350PX)
+       ========================================================================== */
+    .portfolio-pin-container {
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+        background: transparent !important;
+    }
+
+    .portfolio-horizontal {
+        display: flex;
+        height: 100%;
+        width: 270vw; 
+        align-items: center;
+        padding-left: 60px;
+        will-change: transform;
+    }
+
+    .portfolio-intro {
+        width: 45vw; 
+        flex-shrink: 0;
+        padding-right: 40px;
+        z-index: 30;
+    }
+
+    .portfolio-intro span {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #06b6d4;
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    .portfolio-intro h2 {
+        font-size: 3.8rem;
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -1.5px;
+        background: linear-gradient(135deg, #ffffff 0%, #6366f1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .portfolio-item {
+        width: 95vw; 
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        padding-left: 20px;
+        padding-right: 220px; /* Colchón que evita que el celular se pegue al siguiente texto */
+        overflow: visible; 
+    }
+
+    .item-odd { 
+        align-items: flex-start; 
+        padding-top: 8vh; 
+    }
+    .item-even { 
+        align-items: flex-end; 
+        padding-bottom: 8vh; 
+    }
+
+    .project-info {
+        width: 38%;
+        z-index: 20;
+        position: relative;
+    }
+
+    .project-info .num {
+        font-size: 14px;
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.15);
+        font-family: monospace;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .project-info h3 {
+        font-size: 2.3rem;
+        font-weight: 800;
+        margin-bottom: 16px;
+        letter-spacing: -1px;
+        color: #fff;
+    }
+
+    .project-info p {
+        font-size: 0.95rem;
+        color: #9293a4;
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+
+    .project-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .project-tags span {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 6px 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        color: #d1d2dc;
+    }
+
+    .project-visual {
+        width: 54%; 
+        height: 52vh; 
+        max-height: 420px;
+        position: relative;
+        overflow: visible; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .project-glow-bg {
+        position: absolute;
+        width: 110%;
+        height: 110%;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.15;
+        z-index: 1;
+        will-change: transform;
+    }
+
+    .project-screen {
+        position: relative;
+        width: 90%; 
+        height: 100%;
+        background: rgba(10, 10, 25, 0.6);
+        border: 2px solid rgba(99, 102, 241, 0.25); 
+        border-radius: 16px;
+        box-shadow: 0 0 40px rgba(99, 102, 241, 0.15);
+        z-index: 2;
+        overflow: hidden; 
+        transform: perspective(1200px) rotateY(-14deg) rotateX(4deg); 
+        will-change: transform;
+        padding: 10px; 
+    }
+
+    .project-screen img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(0.95) contrast(1.02); 
+        border-radius: 8px;
+    }
+
+    .project-floating-png {
+        position: absolute;
+        z-index: 3;
+        will-change: transform;
+    }
+
+    .project-floating-png img {
+        width: 100%;
+        height: auto;
+    }
+
+    /* ==========================================================================
+       6. COMPORTAMIENTO MOCKUPS MÓVILES
+       ========================================================================== */
+    .p-float-2 {
+        bottom: -40px; 
+        right: -10px; 
+        width: 26%; 
+        filter: drop-shadow(-15px 20px 30px rgba(0, 0, 0, 0.55));
+        transform: perspective(1200px) rotateY(12deg) rotateX(4deg) rotateZ(-1deg);
+        transition: transform 0.3s ease;
+    }
+
+    .portfolio-item:hover .p-float-2 {
+        transform: perspective(1200px) rotateY(8deg) rotateX(2deg) rotateZ(-1deg) translateY(-5px);
+    }
+
+    .p-float-1 {
+        top: -30px; 
+        right: -10px; 
+        width: 26%; 
+        filter: drop-shadow(15px 20px 30px rgba(0, 0, 0, 0.55));
+        transform: perspective(1200px) rotateY(-12deg) rotateX(4deg) rotateZ(1deg);
+        transition: transform 0.3s ease;
+    }
+
+    .portfolio-item:hover .p-float-1 {
+        transform: perspective(1200px) rotateY(-8deg) rotateX(2deg) rotateZ(1deg) translateY(-5px);
+    }
+
+    /* ==========================================================================
+       7. FOOTER UI
+       ========================================================================== */
+    .ui-footer {
+        width: 100%;
+        padding: 40px 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        background: transparent !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .ui-footer p {
+        font-size: 12px;
+        color: #5d5e6f;
+        letter-spacing: 0.5px;
+    }
+
+    .sparkle-icon {
+        width: 24px;
+        height: 24px;
+        background: #d1d2dc;
+        clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+        opacity: 0.7;
+    }
