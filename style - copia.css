@@ -30,6 +30,16 @@
         will-change: transform;
     }
 
+    #starfield {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none; /* Esto evita que el canvas robe clicks */
+    will-change: transform; /* Esto fuerza a Chrome a usar la GPU para el canvas */
+}
 
 /* ==========================================================================
        1. CONTENEDOR CRISTAL (AMPLIADO PARA PANTALLAS GRANDES)
@@ -122,36 +132,16 @@
        3. HERO SECTION & GEOMETRÍA (100% RESPONSIVO Y ELÁSTICO)
        ========================================================================== */
     .hero {
-        height: 110vh;
+        height: 100vh;
         display: flex;
         flex-direction: column;
         justify-content: center; 
         align-items: center;
         text-align: center;
-        padding-top: 100px; 
+        padding-top: 150px; 
         position: relative;
-            overflow: hidden; /* Importante para no desbordar elementos */
-
+        background: transparent !important;
     }
-
-.hero-background-galaxy {
-    position: absolute;
-    top: 5%;
-    left: 5%;
-    width: 90%;
-    height: 90%;
-    /* Múltiples capas: nubes ambientales en los extremos + tu imagen central */
-    background-image: 
- 
-        url('galaxia.webp');
-    background-size: cover, cover, cover;
-    background-position: center;
-    opacity: 0.9; /* Sube un poco la opacidad si lo ves muy apagado */
-    z-index: 0;
-    mix-blend-mode: screen;
-    pointer-events: none;
-    will-change: transform;
-}
 
     .hero h1 {
         /* clamp(mínimo, dinámico, máximo) -> Escala perfectamente entre 1350px y 1080p */
@@ -167,13 +157,12 @@
         -webkit-text-fill-color: transparent;
         opacity: 0;
         transform: translateY(30px);
-        z-index: 2
     }
 
     .hero p {
         /* El subtítulo también se encoge de forma sutil en pantallas compactas */
-        font-size: clamp(1rem, 1.3vw, 1.4rem); 
-        color: #e4e5f8;
+        font-size: clamp(1rem, 1.4vw, 1.7rem); 
+        color: #9293a4;
         max-width: 90%;
         width: 700px; 
         margin-bottom: clamp(30px, 5vh, 60px); /* El espacio vertical se reduce si la pantalla es baja */
@@ -181,7 +170,6 @@
         font-weight: 400;
         opacity: 0;
         transform: translateY(30px);
-        z-index: 2
     }
 
     .hero-geometry {
@@ -199,7 +187,6 @@
         margin-bottom: 20px; 
         will-change: transform, opacity, filter;
         overflow: visible; 
-        z-index: 2
     }
 
     .hero-geometry .main-shape {
@@ -211,31 +198,20 @@
     }
 
     /* EFECTO NEBULOSA ADAPTATIVO */
-.geometry-glow {
-    position: absolute;
-    width: 200%;  /* Incrementado de 180% a 220% */
-    height: 100%; 
-    background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, rgba(109, 62, 122, 0.15) 50%, rgba(0, 0, 0, 0) 75%);
-    border-radius: 50%;
-    z-index: 1;
-    filter: blur(min(110px, 10vw)); /* Un difuminado más amplio y atmosférico */
-    pointer-events: none;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); 
-}
-
-    .hero-astronaut {
-    position: absolute;
-    width: clamp(150px, 15vw, 300px); /* Tamaño responsive */
-    bottom: 5%;
-    right: 15%;
-    z-index: 3;
-    pointer-events: none; /* Para que no interfiera con el mouse */
-    will-change: transform;
-}
-
-
+    .geometry-glow {
+        position: absolute;
+        /* Se adapta proporcionalmente al tamaño que tome la geometría */
+        width: 180%;  
+        height: 180%; 
+        background: radial-gradient(circle, rgba(168, 85, 247, 0.28) 0%, rgba(109, 62, 122, 0.1) 45%, rgba(0, 0, 0, 0) 70%);
+        border-radius: 50%;
+        z-index: 1;
+        filter: blur(min(90px, 8vw)); /* Evita que el blur se vuelva un manchón duro en pantallas pequeñas */
+        pointer-events: none;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); 
+    }
 
 
     /* ==========================================================================
@@ -597,3 +573,6 @@
         clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
         opacity: 0.7;
     }
+
+
+    

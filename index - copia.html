@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espacio Sideral — Agencia Digital</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #060214;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        h1, h2, h3 {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Capas de fondo complejas para simular el espacio profundo */
+        .stars-bg {
+            background: 
+                radial-gradient(circle at 50% 15%, #180933 0%, transparent 55%),
+                radial-gradient(circle at 80% 50%, #0f0524 0%, transparent 40%),
+                var(--bg-dark);
+            position: relative;
+        }
+
+        /* Vidrio Esmerilado Fiel al Mockup (Glassmorphism de alta calidad) */
+        .glass-panel {
+            background: rgba(13, 8, 31, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        /* Tarjetas de la Trinidad con gradiente de borde interno y glow interactivo */
+        .trinity-card {
+            background: rgba(15, 9, 36, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.4s ease, transform 0.4s ease;
+        }
+        .trinity-card:hover {
+            border-color: rgba(167, 139, 250, 0.4);
+            transform: translateY(-2px);
+        }
+        .card-glow-layer {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(300px circle at var(--x, 0px) var(--y, 0px), rgba(139, 92, 246, 0.18), transparent 60%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .trinity-card:hover .card-glow-layer {
+            opacity: 1;
+        }
+
+        /* Estructura fija requerida para el correcto funcionamiento de GSAP Scroll Horizontal */
+        .horizontal-scroll-container {
+            display: flex;
+            flex-wrap: nowrap;
+            width: 400vw; /* Ajustado proporcionalmente para 3 proyectos + sección ver más */
+            will-change: transform;
+        }
+        .project-panel {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body class="stars-bg">
+
+    <nav class="fixed top-0 left-0 w-full z-50 bg-[#060214]/40 backdrop-blur-xl border-b border-white/5 px-8 py-5 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="leading-none tracking-widest text-xs font-bold uppercase">
+                ESPACIO<br><span class="text-violet-400 text-[10px]">SIDERAL</span>
+            </div>
+        </div>
+        <div class="hidden md:flex gap-10 text-[11px] tracking-[0.2em] uppercase font-medium text-gray-400">
+            <a href="#" class="hover:text-white transition-colors">Servicios</a>
+            <a href="#portfolio" class="hover:text-white transition-colors">Portfolio</a>
+            <a href="#" class="hover:text-white transition-colors">Sobre Nosotros</a>
+            <a href="#contacto" class="hover:text-white transition-colors">Contacto</a>
+        </div>
+        <button class="border border-white/10 hover:border-violet-500 rounded-full px-6 py-2.5 text-[10px] uppercase tracking-widest bg-white/5 hover:bg-violet-600/20 transition-all duration-300">
+            Inicio Proyecto
+        </button>
+    </nav>
+
+    <header class="relative w-full h-screen flex flex-col justify-center items-center text-center px-4 overflow-hidden z-10">
+        <div id="hero-nebula" class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?q=80&w=2048')] bg-cover bg-center opacity-30 mix-blend-screen pointer-events-none scale-110"></div>
+
+        <div class="relative z-20 max-w-5xl mx-auto">
+            <h1 class="text-4xl md:text-7xl font-black uppercase tracking-tight leading-[1.1] text-white">
+                CONSTRUIMOS TU<br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-300">
+                    ESPACIO EN LA RED
+                </span>
+            </h1>
+            <p class="mt-6 text-gray-400 text-xs md:text-sm tracking-widest max-w-xl mx-auto font-light leading-relaxed">
+                Desarrollamos soluciones web en alto rendimiento y diseño impecable.
+            </p>
+        </div>
+
+        <div class="absolute inset-0 pointer-events-none z-10">
+            <div id="penrose-layer" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] md:w-[500px] h-[350px] md:h-[500px] flex items-center justify-center">
+                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600" 
+                     alt="Triángulo de Penrose" 
+                     class="w-4/5 h-4/5 object-cover rounded-full opacity-35 mix-blend-lighten pointer-events-auto" />
+            </div>
+
+            <img id="astronaut-layer" 
+                 src="https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=400" 
+                 alt="Astronauta" 
+                 class="absolute top-[25%] right-[12%] w-36 md:w-60 pointer-events-auto rounded-2xl filter drop-shadow-[0_0_30px_rgba(139,92,246,0.25)]" />
+        </div>
+    </header>
+
+    <section class="py-32 px-6 max-w-7xl mx-auto relative z-20">
+        <div class="mb-16">
+            <span class="text-[10px] uppercase tracking-[0.3em] text-violet-400 font-mono block mb-3">Ecosistem de Desarrollo</span>
+            <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight max-w-3xl leading-tight">La trinidad detrás de cada<br>órbita digital.</h2>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6" id="trinity-wrapper">
+            <div class="trinity-card rounded-2xl p-10 min-h-[320px] flex flex-col justify-between">
+                <div class="card-glow-layer"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-violet-400 shadow-[0_0_12px_#a78bfa] relative z-10"></div>
+                <div class="relative z-10">
+                    <h3 class="text-lg font-bold tracking-wide mb-3 text-white">Estrategia & Agile</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed font-light">Planificación estricta mediante metodologías ágiles, sprints iterativos y optimización profunda del flujo técnico para asegurar lanzamientos sin retrasos.</p>
+                </div>
+            </div>
+            <div class="trinity-card rounded-2xl p-10 min-h-[320px] flex flex-col justify-between">
+                <div class="card-glow-layer"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-fuchsia-400 shadow-[0_0_12px_#f472b6] relative z-10"></div>
+                <div class="relative z-10">
+                    <h3 class="text-lg font-bold tracking-wide mb-3 text-white">card-dev te Código</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed font-light">Estructuras de código limpias, sólidas y modulares. Desarrollo a medida con integraciones complejas en WordPress, PHP avanzado y optimización de servidores.</p>
+                </div>
+            </div>
+            <div class="trinity-card rounded-2xl p-10 min-h-[320px] flex flex-col justify-between">
+                <div class="card-glow-layer"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-[0_0_12px_#818cf8] relative z-10"></div>
+                <div class="relative z-10">
+                    <h3 class="text-lg font-bold tracking-wide mb-3 text-white">card-design</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed font-light">Diseño de interfaces pulidas e inmersivas con un cuidado meticuloso por el fotorrealismo, iluminación adaptativa y transiciones fluidas de marca.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="portfolio" class="relative">
+        <div class="horizontal-scroll-container">
+            
+            <section class="project-panel bg-[#060214] flex-col !items-start px-8 md:px-24">
+                <span class="text-[10px] uppercase tracking-[0.3em] text-violet-400 font-mono block mb-3">Portfolio-Pin-Container</span>
+                <h2 class="text-4xl md:text-7xl font-black uppercase tracking-tight text-white">Galaxia de<br>Proyectos</h2>
+                <p class="text-gray-500 text-xs mt-6 font-mono">Desplace hacia abajo para explorar el universo →</p>
+            </section>
+
+            <section class="project-panel glass-panel">
+                <div class="max-w-4xl w-full mx-auto p-8 bg-gradient-to-br from-purple-950/20 to-indigo-950/20 border border-white/10 rounded-3xl flex flex-col md:flex-row gap-8 items-center relative overflow-hidden">
+                    <div class="flex-1">
+                        <span class="text-[9px] uppercase tracking-widest font-mono text-violet-400 block mb-2">/ 1 . ES — NOTIFICACIÓN PLATAFORMA</span>
+                        <h3 class="text-3xl font-extrabold mb-4 text-white">AnimAll Store</h3>
+                        <p class="text-gray-400 text-xs font-light leading-relaxed mb-6">Desarrollo integral de plataforma e-commerce premium para alimentación natural BARF. Inclusión de lógicas avanzadas de conversión y experiencia interactiva líquida.</p>
+                        <div class="flex gap-3 text-[10px] font-mono text-gray-400"><span class="bg-white/5 px-2.5 py-1 rounded">WordPress</span><span class="bg-white/5 px-2.5 py-1 rounded">PHP Custom</span></div>
+                    </div>
+                    <div class="w-full md:w-64 h-64 bg-[#230947] rounded-2xl p-6 flex flex-col justify-between border border-purple-500/30 shadow-[0_0_40px_rgba(139,92,246,0.15)] relative group">
+                        <div class="text-[11px] font-mono text-purple-300">AnimAll <span class="text-white">Store</span></div>
+                        <div class="my-auto text-center">
+                            <span class="text-2xl font-black block tracking-tighter text-white leading-none">NO!</span>
+                            <span class="text-[10px] uppercase tracking-widest text-purple-200 block mt-1">Vendemos Moda</span>
+                        </div>
+                        <div class="text-[9px] uppercase tracking-wider text-right text-purple-300 font-bold">Brindan Nutrición...</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-panel glass-panel">
+                <div class="max-w-4xl w-full mx-auto p-8 bg-gradient-to-br from-blue-950/20 to-slate-900/30 border border-white/10 rounded-3xl flex flex-col md:flex-row gap-8 items-center">
+                    <div class="flex-1">
+                        <span class="text-[9px] uppercase tracking-widest font-mono text-blue-400 block mb-2">/ 2 . ES — E-COMMERCE PLATFORM</span>
+                        <h3 class="text-3xl font-extrabold mb-4 text-white">Biomapp Community</h3>
+                        <p class="text-gray-400 text-xs font-light leading-relaxed mb-6">Plataforma comercial y comunitaria interactiva diseñada para mapear servicios y potenciar la economía local dentro de un entorno web optimizado de alto impacto visual.</p>
+                        <div class="flex gap-3 text-[10px] font-mono text-gray-400"><span class="bg-white/5 px-2.5 py-1 rounded">Tailwind</span><span class="bg-white/5 px-2.5 py-1 rounded">JavaScript Vanilla</span></div>
+                    </div>
+                    <div class="w-full md:w-64 h-64 bg-gradient-to-b from-blue-600 to-indigo-900 rounded-2xl p-6 flex flex-col justify-between border border-blue-400/20 text-white">
+                        <div class="text-xs font-bold uppercase tracking-widest">Second<br>e-commerce<br>project</div>
+                        <span class="text-[9px] bg-amber-500 text-black font-mono font-bold px-2 py-0.5 rounded self-start uppercase">Clasificados</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-panel bg-[#09051c]">
+                <a href="universo-completo.html" class="group flex flex-col items-center text-center gap-5">
+                    <div class="w-20 h-20 rounded-full border border-white/10 group-hover:border-violet-500 flex items-center justify-center bg-white/5 group-hover:bg-violet-600/20 transition-all duration-500 transform group-hover:scale-110 shadow-[0_0_30px_transparent] group-hover:shadow-violet-600/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-8 h-8 text-white group-hover:text-violet-400 transition-colors">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+                        </svg>
+                    </div>
+                    <span class="text-xs uppercase tracking-[0.25em] font-medium text-gray-400 group-hover:text-white transition-colors">Ver más proyectos</span>
+                </a>
+            </section>
+
+        </div>
+    </div>
+
+    <section id="contacto" class="py-36 px-6 max-w-7xl mx-auto relative z-20">
+        <div class="grid md:grid-cols-2 gap-16 items-center">
+            
+            <div class="relative p-[1px] bg-gradient-to-b from-violet-500/30 via-transparent to-transparent rounded-3xl">
+                <div class="bg-[#0b071e]/90 p-10 rounded-[23px] border border-white/5 relative">
+                    <span class="text-[10px] uppercase font-mono tracking-widest text-violet-400 block mb-2">Contacto</span>
+                    <h2 class="text-3xl font-extrabold mb-2 tracking-tight text-white">Estamos a un clic<br>de distancia</h2>
+                    <p class="text-gray-400 text-xs mb-8 font-light">hablemos sobre tu próximo proyecto digital</p>
+
+                    <form class="space-y-4" onsubmit="event.preventDefault();">
+                        <input type="text" placeholder="nombre" class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-4 text-xs focus:outline-none focus:border-violet-500 transition-colors placeholder:text-gray-600" />
+                        <input type="email" placeholder="email" class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-4 text-xs focus:outline-none focus:border-violet-500 transition-colors placeholder:text-gray-600" />
+                        <textarea placeholder="mensajs" rows="4" class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-4 text-xs focus:outline-none focus:border-violet-500 transition-colors placeholder:text-gray-600 resize-none"></textarea>
+                        <button class="w-full bg-violet-600 hover:bg-violet-700 text-white text-[11px] uppercase font-bold tracking-widest py-4 rounded-xl transition-all duration-300 shadow-[0_4px_20px_rgba(139,92,246,0.3)]">Enviar</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="space-y-10 md:pl-10">
+                <div>
+                    <h4 class="text-[11px] uppercase text-gray-500 tracking-widest mb-2 font-mono">nuestro centre de centrel</h4>
+                    <p class="text-sm text-gray-300 font-light tracking-wide">(recolets. santiago)</p>
+                </div>
+
+                <div class="space-y-4 text-xs text-gray-400 font-light">
+                    <p class="flex items-center gap-4">
+                        <span class="text-violet-400 text-base">✉</span> email@espaciosideral.com
+                    </p>
+                    <p class="flex items-center gap-4">
+                        <span class="text-violet-400 text-base">📞</span> +223 381 3790
+                    </p>
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <a href="#" class="w-9 h-9 rounded-full bg-white/5 hover:bg-violet-600/20 flex items-center justify-center border border-white/10 text-xs transition-colors">𝕏</a>
+                    <a href="#" class="w-9 h-9 rounded-full bg-white/5 hover:bg-violet-600/20 flex items-center justify-center border border-white/10 text-xs transition-colors">f</a>
+                    <a href="#" class="w-9 h-9 rounded-full bg-white/5 hover:bg-violet-600/20 flex items-center justify-center border border-white/10 text-xs transition-colors">▶</a>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-32 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-[9px] text-gray-600 tracking-widest uppercase font-mono">
+            <p>Eopacie Sideral - Integrsción Avanzada & Peicedicta Liquida</p>
+            <p class="mt-4 md:mt-0">© 2026 Todos los derechos reservados.</p>
+        </footer>
+    </section>
+
+    <script>
+        // Registrar ScrollTrigger de manera explícita en el core de GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 1. EFECTO PIN + SCROLL HORIZONTAL DE PROYECTOS (PRO)
+        const scrollContainer = document.querySelector(".horizontal-scroll-container");
+        
+        gsap.to(scrollContainer, {
+            x: () => -(scrollContainer.scrollWidth - window.innerWidth),
+            ease: "none",
+            scrollTrigger: {
+                trigger: "#portfolio",
+                pin: true,           // Bloquea el scroll vertical mientras dura la animación
+                scrub: 1,            // Vincula el movimiento directamente al giro de la rueda del mouse
+                start: "top top",    // Inicia exactamente cuando el contenedor llega arriba
+                end: () => "+=" + scrollContainer.scrollWidth, // Duración proporcional al ancho
+                invalidateOnRefresh: true
+            }
+        });
+
+        // 2. EFECTO PARALLAX 3D FLUIDO EN EL HERO (Mouse Move)
+        document.addEventListener("mousemove", (e) => {
+            const { clientX, clientY } = e;
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            // Intensidades de movimiento diferenciales para generar volumen real
+            const xPenrose = (clientX - centerX) * 0.02;
+            const yPenrose = (clientY - centerY) * 0.02;
+            const xAstronaut = (clientX - centerX) * 0.04;
+            const yAstronaut = (clientY - centerY) * 0.04;
+            const xNebula = (clientX - centerX) * -0.01;
+            const yNebula = (clientY - centerY) * -0.01;
+
+            gsap.to("#penrose-layer img", { x: xPenrose, y: yPenrose, duration: 1, ease: "power2.out" });
+            gsap.to("#astronaut-layer", { x: xAstronaut, y: yAstronaut, duration: 1.2, ease: "power3.out" });
+            gsap.to("#hero-nebula", { x: xNebula, y: yNebula, duration: 2, ease: "power1.out" });
+        });
+
+        // 3. ANIMACIÓN SUTIL DE FLOTACIÓN CONSTANTE (Astronauta)
+        gsap.to("#astronaut-layer", {
+            y: "-=15",
+            rotation: 1.5,
+            duration: 3.5,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1
+        });
+
+        // 4. LÓGICA DE COORDENADAS PARA EL EFECTO GLOW INTERACTIVO DE LAS TARJETAS (Trinidad)
+        const trinityCards = document.querySelectorAll('.trinity-card');
+        trinityCards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                card.style.setProperty('--x', `${x}px`);
+                card.style.setProperty('--y', `${y}px`);
+            });
+        });
+    </script>
+</body>
+</html>
