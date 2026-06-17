@@ -389,14 +389,26 @@ header {
     justify-content: flex-end; /* Alinea el contenido (los asteroides) a la derecha */
 }
 
-/* La huincha de asteroides de 2000px */
+/* La huincha de asteroides (por defecto para escritorio y tablets grandes) */
 .asteroid-belt-strip {
     display: block;
-    width: 1500px; /* Forzamos su ancho nativo */
+    width: 1500px; /* Ancho para pantallas grandes */
     height: auto;
     max-width: none; /* Evita que los estilos responsivos por defecto la achiquen */
     opacity: 0.85;
     filter: drop-shadow(0px 15px 20px rgba(0, 0, 0, 0.8));
+}
+
+/* --- Ajustes para Responsivo (Móviles) --- */
+
+/* Se aplica a pantallas con un ancho de 768px o menos (típico para móviles y tablets en vertical) */
+@media screen and (max-width: 768px) {
+    .asteroid-belt-strip {
+        width: 100%; /* Permite que la imagen se adapte al ancho de la pantalla móvil */
+        max-width: 100%; /* Asegura que no se desborde del contenedor */
+        height: auto; /* Mantiene la proporción de aspecto */
+        /* justify-content: flex-end en el contenedor sigue funcionando para alinear a la derecha si es más pequeña que el contenedor */
+    }
 }
 
     /* ==========================================================================
