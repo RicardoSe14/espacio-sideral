@@ -219,6 +219,23 @@
     transform: translate(-50%, -50%); 
 }
 
+/* RESPONSIVO: Ajustes exclusivos para dispositivos móviles */
+@media (max-width: 767px) {
+    .hero-geometry {
+        /* Reducimos las dimensiones a la mitad utilizando clamp adaptado a móviles */
+        width: clamp(170px, 25vh, 250px);  
+        height: clamp(120px, 22vh, 180px); 
+        margin-bottom: 10px; /* Reducimos un poco el margen para optimizar el espacio vertical */
+    }
+
+    .geometry-glow {
+        /* Ajustamos el tamaño del aura para que no sature la pantalla del teléfono */
+        width: 180%; 
+        height: 180%;
+        filter: blur(min(50px, 12vw)); /* Desenfoque más controlado para pantallas pequeñas */
+    }
+}
+
     .hero-astronaut {
     position: absolute;
     width: clamp(150px, 15vw, 300px); /* Tamaño responsive */
