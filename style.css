@@ -14,7 +14,6 @@
         color: #ffffff;
         overflow-x: hidden;
         min-height: 250vh; 
-        padding: 24px; 
     }
 
     /* LIENZO ESPACIAL GLOBAL */
@@ -245,6 +244,20 @@ header {
     will-change: transform;
 }
 
+@media (max-width: 768px) {
+    .hero-background-galaxy {
+        /* 'contain' hará que toda la galaxia sea visible sin recortarse */
+        background-size: cover;
+
+        /* Repetimos 'no-repeat' para evitar que se duplique si el div es muy alto */
+        background-repeat: no-repeat;
+        /* Ajusta la altura si el div padre es demasiado grande */
+        width: 140%;
+        height: 100%;
+        left: -25%; /* Centra la galaxia aunque el div sea más ancho */ 
+    }
+}
+
     .hero h1 {
         /* clamp(mínimo, dinámico, máximo) -> Escala perfectamente entre 1350px y 1080p */
         font-size: clamp(2.0rem, 4.8vw, 5.2rem); 
@@ -402,12 +415,15 @@ header {
 /* --- Ajustes para Responsivo (Móviles) --- */
 
 /* Se aplica a pantallas con un ancho de 768px o menos (típico para móviles y tablets en vertical) */
+/* --- Ajustes para Responsivo (Móviles) --- */
 @media screen and (max-width: 768px) {
     .asteroid-belt-strip {
-        width: 100%; /* Permite que la imagen se adapte al ancho de la pantalla móvil */
-        max-width: 100%; /* Asegura que no se desborde del contenedor */
-        height: auto; /* Mantiene la proporción de aspecto */
-        /* justify-content: flex-end en el contenedor sigue funcionando para alinear a la derecha si es más pequeña que el contenedor */
+        /* En vez de 100%, le damos un ancho fijo intermedio para que los asteroides */
+        /* mantengan un tamaño físico grande y se desborden elegantemente hacia la izquierda */
+        width: 850px; 
+        max-width: none; /* Rompemos cualquier restricción de compresión */
+        height: auto; /* Mantiene la proporción perfecta sin deformar */
+        opacity: 0.9; /* Un pelín más de presencia en pantallas pequeñas */
     }
 }
 
