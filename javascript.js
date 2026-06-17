@@ -1,13 +1,14 @@
-
 // ==========================================================================
-// 1. CONFIGURACIÓN DEL MOTOR GRÁFICO DEL ESPACIO (CANVAS STARFIELD)
+// 1. CONFIGURACIÓN DEL MOTOR GRÁFICO DEL ESPACIO (CANVAS STARFIELD - HERO ONLY)
 // ==========================================================================
 const canvas = document.getElementById('starfield');
 const ctx = canvas.getContext('2d');
+const heroSection = document.querySelector('.hero');
 
 let stars = [];
 let nebulas = [];
-const numStars = 250; 
+const numStars = 200; 
+let isHeroVisible = true;
 
 let shootingStar = {
     x: 0, y: 0, dx: 0, dy: 0,
@@ -19,8 +20,9 @@ let mouse = { x: -1000, y: -1000, targetX: -1000, targetY: -1000 };
 let scroll = { current: 0, target: 0, speed: 0 };
 
 function resizeCanvas() {
+    if (!heroSection) return;
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.height = heroSection.offsetHeight; 
     initSpace();
 }
 
@@ -29,14 +31,18 @@ function initSpace() {
 
     stars = [];
     for(let i = 0; i < numStars; i++) {
+        // Un 8% de las estrellas totales se convertirán en Luceros grandes con Aura
+        const isLucero = Math.random() < 0.08; 
+
         stars.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            radius: Math.random() * 1.4 + 0.3, 
-            baseOpacity: Math.random() * 0.6 + 0.4, 
+            radius: isLucero ? Math.random() * 1.5 + 2.5 : Math.random() * 1.4 + 0.3, 
+            baseOpacity: isLucero ? Math.random() * 0.4 + 0.6 : Math.random() * 0.6 + 0.4, 
             opacity: Math.random() * 0.6,
-            speed: Math.random() * 0.01 + 0.004, 
-            factor: Math.random() > 0.5 ? 1 : -1
+            speed: isLucero ? Math.random() * 0.008 + 0.003 : Math.random() * 0.01 + 0.004, 
+            factor: Math.random() > 0.5 ? 1 : -1,
+            isLucero: isLucero 
         });
     }
 
@@ -48,33 +54,8 @@ function initSpace() {
     ];
 }
 
-function launchShootingStar() {
-    if (shootingStar.active) return;
-    shootingStar.x = Math.random() * canvas.width * 0.7;
-    shootingStar.y = Math.random() * canvas.height * 0.4;
-    shootingStar.speed = Math.random() * 15 + 15; 
-    shootingStar.length = Math.random() * 80 + 60; 
-    const angle = Math.PI / 4 + (Math.random() * 0.2 - 0.1); 
-    shootingStar.dx = Math.cos(angle) * shootingStar.speed;
-    shootingStar.dy = Math.sin(angle) * shootingStar.speed;
-    shootingStar.opacity = 1;
-    shootingStar.active = true;
-}
-
-function setupShootingStarTimer() {
-    const randomTime = Math.random() * 5000 + 4000;
-    setTimeout(() => {
-        launchShootingStar();
-        setupShootingStarTimer();
-    }, randomTime);
-}
-
-window.addEventListener('scroll', () => {
-    scroll.target = window.scrollY;
-}, { passive: true });
-
 function drawSpace() {
-    if (canvas.width === 0 || canvas.height === 0) {
+    if (!isHeroVisible || canvas.width === 0 || canvas.height === 0) {
         requestAnimationFrame(drawSpace);
         return;
     }
@@ -89,9 +70,9 @@ function drawSpace() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.globalCompositeOperation = 'screen';
     
-    const nebulaScrollY = (scroll.current * 0.08) % canvas.height;
+    const nebulaScrollY = scroll.current * 0.04; 
 
-    // RENDER DE NEBULOSAS DEL CANVAS
+    // RENDER DE NEBULOSAS
     nebulas.forEach(nebula => {
         nebula.x += nebula.vx; nebula.y += nebula.vy;
         if (nebula.x < -nebula.radius/3 || nebula.x > canvas.width + nebula.radius/3) nebula.vx *= -1;
@@ -128,13 +109,12 @@ function drawSpace() {
         }
     }
 
-    // RENDER DEL POLVO DE ESTRELLAS
+    // RENDER DEL POLVO DE ESTRELLAS Y LUCEROS
     stars.forEach(star => {
         star.opacity += star.speed * star.factor;
-        if(star.opacity >= star.baseOpacity || star.opacity <= 0.1) star.factor *= -1;
+        if(star.opacity >= star.baseOpacity || star.opacity <= 0.05) star.factor *= -1;
 
-        let starY = (star.y - (scroll.current * 0.05)) % canvas.height;
-        if (starY < 0) starY += canvas.height;
+        let starY = star.y; 
         let starX = star.x;
 
         const dx = mouse.x - starX; const dy = mouse.y - starY;
@@ -144,32 +124,97 @@ function drawSpace() {
             starX -= (dx / distance) * force * 28; starY -= (dy / distance) * force * 28;
         }
 
-        ctx.beginPath();
-        if (scroll.speed > 1.5) {
-            const stretch = scroll.speed * 0.65;
-            ctx.moveTo(starX, starY); ctx.lineTo(starX, starY - stretch);
-            ctx.strokeStyle = `rgba(240, 245, 255, ${Math.max(0.1, star.opacity)})`;
-            ctx.lineWidth = star.radius * 1.2; ctx.stroke();
-        } else {
+        // Se eliminó la deformación estirada por scroll para mantener forma esférica pura
+if (star.isLucero) {
+            // --- NUEVO: RENDER DE LUCERO CON MÁS AURA TODAVÍA ---
+            ctx.save(); // Aislamos los estilos para que el aura no afecte a las estrellas comunes
+            
+            // 1. MODIFICADO: Aumentamos radicalmente el radio del Aura.
+            // Original: star.radius * 15. Nuevo: star.radius * 35.
+            ctx.shadowBlur = star.radius * 35; // Aura súper expansiva
+            
+            // 2. MODIFICADO: Hacemos el color del aura más intenso y presente.
+            // Subimos la opacidad mínima de 0.1 a 0.35 para que el resplandor sea muy visible.
+            ctx.shadowColor = `rgba(186, 140, 255, ${Math.max(0.35, star.opacity)})`; 
+            
+            // 3. MODIFICADO: Gradiente interno más suave y grande.
+            // Expandimos el gradiente radial de star.radius * 3 a star.radius * 6.
+            let glowGrad = ctx.createRadialGradient(starX, starY, 0, starX, starY, star.radius * 6);
+            glowGrad.addColorStop(0, `rgba(255, 255, 255, ${Math.max(0.2, star.opacity)})`);
+            glowGrad.addColorStop(0.3, `rgba(160, 100, 255, ${Math.max(0.1, star.opacity * 0.6)})`);
+            glowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            // Pintamos el área del destello base que proyectará la sombra/aura.
+            ctx.beginPath();
+            // Original: star.radius * 2. Nuevo: star.radius * 3.
+            ctx.arc(starX, starY, star.radius * 3, 0, Math.PI * 2);
+            ctx.fillStyle = glowGrad;
+            ctx.fill();
+
+            // 4. Apagamos la sombra temporalmente para dibujar el núcleo blanco puro y denso.
+            ctx.shadowBlur = 0; 
+            ctx.beginPath();
             ctx.arc(starX, starY, star.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(245, 245, 255, ${Math.max(0.1, star.opacity)})`; ctx.fill();
+            ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.4, star.opacity)})`;
+            ctx.fill();
+            
+            ctx.restore(); // Devolvemos el lienzo a su estado normal para el siguiente ciclo
+        } else {
+            ctx.beginPath();
+            ctx.arc(starX, starY, star.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(245, 245, 255, ${Math.max(0.1, star.opacity)})`; 
+            ctx.fill();
         }
     });
 
     requestAnimationFrame(drawSpace);
 }
 
+function launchShootingStar() {
+    if (shootingStar.active || !isHeroVisible) return; 
+    shootingStar.x = Math.random() * canvas.width * 0.7;
+    shootingStar.y = Math.random() * canvas.height * 0.4;
+    shootingStar.speed = Math.random() * 15 + 15; 
+    shootingStar.length = Math.random() * 80 + 60; 
+    const angle = Math.PI / 4 + (Math.random() * 0.2 - 0.1); 
+    shootingStar.dx = Math.cos(angle) * shootingStar.speed;
+    shootingStar.dy = Math.sin(angle) * shootingStar.speed;
+    shootingStar.opacity = 1;
+    shootingStar.active = true;
+}
+
+function setupShootingStarTimer() {
+    const randomTime = Math.random() * 5000 + 4000;
+    setTimeout(() => {
+        launchShootingStar();
+        setupShootingStarTimer();
+    }, randomTime);
+}
+
+window.addEventListener('scroll', () => {
+    scroll.target = window.scrollY;
+}, { passive: true });
+
 window.addEventListener('resize', resizeCanvas);
-setTimeout(resizeCanvas, 100);
+
+// IntersectionObserver para congelar el motor si salimos del Hero
+if (heroSection) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            isHeroVisible = entry.isIntersecting;
+        });
+    }, { threshold: 0.05 });
+    observer.observe(heroSection);
+}
 
 // ==========================================================================
 // 2. INTERACCIONES DE INTERFAZ Y ENGINE DE ANIMACIÓN (GSAP)
 // ==========================================================================
 gsap.registerPlugin(ScrollTrigger);
-// Desactiva el suavizado por lag para animaciones infinitas de fondo
 gsap.ticker.lagSmoothing(false);
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Inicialización del motor stelar una sola vez en el DOM
     resizeCanvas();
     drawSpace();
     setupShootingStarTimer();
@@ -185,53 +230,45 @@ document.addEventListener("DOMContentLoaded", () => {
     gsap.to('.hero-geometry .main-shape', { y: "+=12", rotationY: "+=4", duration: 4.5, ease: "sine.inOut", repeat: -1, yoyo: true });
     gsap.to('.geometry-glow', { scale: 1.15, opacity: 0.4, duration: 3.5, ease: "sine.inOut", repeat: -1, yoyo: true });
     
-    // Rotación ultra lenta y constante de la galaxia de fondo
-    gsap.to('.hero-background-galaxy', { rotation: 360, duration: 240, repeat: -1, ease: "none" });
+    // Rotación infinita y constante de la galaxia de fondo
+    gsap.to('.hero-background-galaxy', { 
+        rotation: 360,              
+        transformOrigin: "50% 65%", 
+        duration: 30,               
+        repeat: -1,                 
+        ease: "none"                
+    });
+
+    // Efecto respiración de la galaxia (Expansión y contracción sutil)
+    gsap.to('.hero-background-galaxy', {
+        scale: 1.17,                
+        transformOrigin: "50% 65%", 
+        duration: 8,                
+        repeat: -1,                 
+        yoyo: true,                 
+        ease: "sine.inOut"          
+    });
     
     // Flotación del astronauta en ingravidez
     gsap.to('.hero-astronaut', { y: -35, rotation: 4, duration: 5.5, repeat: -1, yoyo: true, ease: "sine.inOut" });
 
-
-    // --- EVENTO INTEGRADO MOUSEMOVE (PARALAJE PROFUNDO SIN CONFLICTOS) ---
+    // --- EVENTO INTEGRADO MOUSEMOVE (PARALAJE PROFUNDO) ---
     let lastMouseX = 0;
 
     window.addEventListener('mousemove', (e) => {
-        // Variables para el Canvas global
         mouse.targetX = e.clientX;
         mouse.targetY = e.clientY;
 
-        // Coordenadas calculadas desde el centro de la pantalla
         const moveX = (e.clientX - window.innerWidth / 2);
         const moveY = (e.clientY - window.innerHeight / 2);
         
-        // Cálculo de velocidad del mouse para efectos reactivos en el logo
         const mouseSpeed = Math.abs(e.clientX - lastMouseX);
         lastMouseX = e.clientX;
 
         const skewAmount = Math.min(mouseSpeed * 0.15, 8); 
         const hueRotateAmount = Math.min(mouseSpeed * 0.6, 45);
 
-        // 1. Capa Lejana (La Galaxia del Fondo - se mueve inversamente y muy lento)
-// 1. ROTACIÓN INFINITA Y CONSTANTE (Se mantiene exactamente como te gustó)
-gsap.to('.hero-background-galaxy', { 
-    rotation: 360,              
-    transformOrigin: "50% 65%", 
-    duration: 30,              
-    repeat: -1,                 
-    ease: "none"                
-});
-
-// 2. EFECTO DE RESPIRACIÓN (Expansión y contracción sutil)
-gsap.to('.hero-background-galaxy', {
-    scale: 1.17,                // Se expande un 8% (sutil pero perceptible)
-    transformOrigin: "50% 65%", // Usamos el mismo eje para que expanda desde el centro del remolino
-    duration: 8,                // Tiempo que tarda en "respirar" (ajustable)
-    repeat: -1,                 // Infinito
-    yoyo: true,                 // Hace el efecto de ida y vuelta (achicarse y agrandarse)
-    ease: "sine.inOut"          // Suave al arrancar y suave al frenar la respiración
-});
-
-        // 2. Capa Media (El Logo Central - Reactivo con inclinación e iluminación)
+        // Capa Media: El Logo Central
         gsap.to('.hero-geometry .main-shape', {
             x: moveX * 0.018, 
             y: moveY * 0.018, 
@@ -242,7 +279,7 @@ gsap.to('.hero-background-galaxy', {
             overwrite: "auto"
         });
         
-        // Retorno elástico del Logo a su estado natural tras detener el mouse
+        // Retorno elástico del Logo
         gsap.to('.hero-geometry .main-shape', { 
             skewX: 0, 
             filter: "hue-rotate(0deg) drop-shadow(0px 0px 0px rgba(0,0,0,0))", 
@@ -252,7 +289,7 @@ gsap.to('.hero-background-galaxy', {
             overwrite: "none" 
         });
 
-        // 3. Capa Cercana (El Astronauta - Se desplaza más rápido acentuando el 3D)
+        // Capa Cercana: El Astronauta
         gsap.to('.hero-astronaut', {
             x: moveX * 0.045,
             y: moveY * 0.045,
@@ -261,20 +298,24 @@ gsap.to('.hero-background-galaxy', {
         });
     });
 
-
-    // --- ANIMACIONES BASADAS EN SCROLL (SCROLLTRIGGER) ---
-    gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom center', scrub: 1, invalidateOnRefresh: true } })
-        .to('.hero-geometry', { y: 120, scale: 0.7, opacity: 0, ease: "none" });
-
-    gsap.from('.cosmic-card', {
-        scrollTrigger: { trigger: '.services', start: 'top 75%', toggleActions: 'play none none reverse' },
-        opacity: 0, y: 50, duration: 1, stagger: 0.15, ease: "power3.out"
+    // --- ANIMACIONES BASADAS EN SCROLL (SCROLLTRIGGER HERO) ---
+    gsap.timeline({ 
+        scrollTrigger: { 
+            trigger: '.hero', 
+            start: 'top top', 
+            end: 'bottom top', 
+            scrub: 1, 
+            invalidateOnRefresh: true 
+        } 
+    })
+    .to('.hero-geometry', { 
+        y: -80,         
+        scale: 0.85,    
+        opacity: 0.4,   
+        ease: "none" 
     });
 
-
-    // ==========================================================================
-    // 3. SECCIÓN PORTFOLIO SINCRO: CONFIGURACIÓN SCROLLTRIGGER HORIZONTAL
-    // ==========================================================================
+    // --- SECCIÓN PORTFOLIO HORIZONTAL SINCRO ---
     const portfolioHorizontal = document.querySelector('.portfolio-horizontal');
     
     if (portfolioHorizontal) {
@@ -291,7 +332,6 @@ gsap.to('.hero-background-galaxy', {
             }
         });
 
-        // EFECTOS PARALLAX ASÍNCRONOS DENTRO DEL CONTENEDOR HORIZONTAL
         document.querySelectorAll('.portfolio-item').forEach(item => {
             const screen = item.querySelector('.project-screen');
             const floatPng = item.querySelector('.project-floating-png');
@@ -338,7 +378,7 @@ gsap.to('.hero-background-galaxy', {
         });
     }
 
-    // --- EFECTO SPOTLIGHT INTERACTIVO PARA TARJETAS ---
+    // --- EFECTO SPOTLIGHT INTERACTIVO EN TARJETAS ---
     const cards = document.querySelectorAll('.cosmic-card');
     cards.forEach(card => {
         card.addEventListener('mousemove', (e) => {
@@ -347,4 +387,66 @@ gsap.to('.hero-background-galaxy', {
             card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
         });
     });
+});
+
+// ==========================================================================
+// 3. SISTEMA DE CUERDA DE FÍSICA FLUIDA AVANZADA (CURVAS CÚBICAS)
+// ==========================================================================
+const ropePath = document.getElementById('space-rope');
+const galaxyContainer = document.querySelector('.hero-geometry'); 
+const astronautElement = document.querySelector('.hero-astronaut'); 
+
+let waveTimeline = 0;
+
+function updateRope() {
+    if (!ropePath || !galaxyContainer || !astronautElement) return;
+
+    const rectGalaxy = galaxyContainer.getBoundingClientRect();
+    const rectAstronaut = astronautElement.getBoundingClientRect();
+    const rectHero = document.querySelector('.hero').getBoundingClientRect();
+
+    const startX = (rectGalaxy.left + rectGalaxy.width / 2) - rectHero.left;
+    const startY = (rectGalaxy.top + rectGalaxy.height * 0.65) - rectHero.top;
+
+    const endX = (rectAstronaut.left + rectAstronaut.width * 0.3) - rectHero.left;
+    const endY = (rectAstronaut.top + rectAstronaut.height * 0.4) - rectHero.top;
+
+    waveTimeline += 0.015; 
+
+    const dx = endX - startX;
+    const dy = endY - startY;
+    
+    const wave1X = Math.sin(waveTimeline) * 12; 
+    const wave1Y = Math.cos(waveTimeline * 0.8) * 15; 
+    
+    const wave2X = Math.sin(waveTimeline * 2.2 + 1) * 6; 
+    const wave2Y = Math.cos(waveTimeline * 1.9) * 4;
+
+    const currentWaveX = wave1X + wave2X;
+    const currentWaveY = wave1Y + wave2Y;
+
+    const control1X = startX + (dx * 0.35) + currentWaveX;
+    const control1Y = startY + (dy * 0.35) + 100 + currentWaveY; 
+
+    const control2X = startX + (dx * 0.65) - currentWaveX; 
+    const control2Y = startY + (dy * 0.65) - 60 - currentWaveY; 
+
+    const dAttribute = `M ${startX} ${startY} C ${control1X} ${control1Y} ${control2X} ${control2Y}, ${endX} ${endY}`;
+    ropePath.setAttribute('d', dAttribute);
+
+    requestAnimationFrame(updateRope);
+}
+
+// Activa el bucle de la física de la cuerda
+requestAnimationFrame(updateRope);
+
+// ==========================================================================
+// 4. MOVIMIENTO DE HUINCHA DE ASTEROIDES (SCROLL TRIGGER HORIZONTAL)
+// ==========================================================================
+gsap.to('.asteroid-belt-strip', {
+    y: "+=15",
+    duration: 5,
+    repeat: -1,
+    yoyo: true,
+    ease: "sine.inOut"
 });

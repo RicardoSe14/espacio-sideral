@@ -18,33 +18,23 @@
     }
 
     /* LIENZO ESPACIAL GLOBAL */
-    #starfield {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: -1; 
-        background: #020206;
-        pointer-events: none;
-        will-change: transform;
-    }
+#starfield {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Asegúrate de que esté un paso por encima del fondo del padre */
+    pointer-events: none;
+    
+    /* NUEVO: Hace que los colores del canvas sumen luz a la imagen de fondo */
+    mix-blend-mode: screen; 
+}
 
 
 /* ==========================================================================
        1. CONTENEDOR CRISTAL (AMPLIADO PARA PANTALLAS GRANDES)
        ========================================================================== */
-    .app-container {
-        position: relative;
-        width: 100%;
-        max-width: 1700px; /* <--- Subido de 1400px a 1700px para que respire increíble en 1080p */
-        margin: 0 auto;
-        background: linear-gradient(180deg, rgba(3, 4, 12, 0.45) 0%, rgba(1, 1, 5, 0.65) 100%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.03); 
-        border-radius: 20px; 
-        z-index: 10;
-        overflow: hidden;
-    }
 
     /* ==========================================================================
        2. HEADER & LOGO
@@ -121,18 +111,22 @@
     /* ==========================================================================
        3. HERO SECTION & GEOMETRÍA (100% RESPONSIVO Y ELÁSTICO)
        ========================================================================== */
-    .hero {
-        height: 110vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center; 
-        align-items: center;
-        text-align: center;
-        padding-top: 100px; 
-        position: relative;
-            overflow: hidden; /* Importante para no desbordar elementos */
+.hero {
+    height: 110vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
+    text-align: center;
+    padding-top: 100px; 
+    position: relative;
+    overflow: hidden; 
 
-    }
+    /* MODIFICADO: Añadimos una capa negra semitransparente (0.7) sobre la imagen */
+
+    background-position: center;
+    background-size: cover;
+}
 
 .hero-background-galaxy {
     position: absolute;
@@ -187,7 +181,7 @@
     .hero-geometry {
         position: relative;
         /* El tamaño del logo ahora se calcula en base a la altura disponible (vh) para que nunca se desborde abajo */
-                max-width: 90%;
+                max-width: 100%;
         width: clamp(340px, 50vh, 500px);  
         height: clamp(240px, 44vh, 360px); 
         display: flex;
@@ -215,7 +209,7 @@
     position: absolute;
     width: 200%;  /* Incrementado de 180% a 220% */
     height: 100%; 
-    background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, rgba(109, 62, 122, 0.15) 50%, rgba(0, 0, 0, 0) 75%);
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 50%, rgba(109, 62, 122, 0.15) 50%, rgba(0, 0, 0, 0) 75%);
     border-radius: 50%;
     z-index: 1;
     filter: blur(min(110px, 10vw)); /* Un difuminado más amplio y atmosférico */
@@ -235,8 +229,60 @@
     will-change: transform;
 }
 
+.space-rope-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Por encima de la galaxia (z-index: 0) y por debajo del astronauta */
+    pointer-events: none; /* No interrumpe las interacciones del mouse */
+    overflow: visible;
+}
 
+#space-rope {
+    fill: none;
+    stroke: url(#rope-gradient); /* Usaremos un gradiente para que brille */
+    stroke-width: 2.5;            /* Grosor del cable */
+    stroke-linecap: round;
+    stroke-dasharray: 60, 4; /* Crea segmentos de luz de 60px y espacios de 4px */
+    animation: flowRopeEnergy 15s linear infinite; /* Anima el flujo de los segmentos */
+    /* Efecto de brillo de neón con drop-shadow */
+    filter: drop-shadow(0px 0px 8px rgba(255, 255, 255, 0.8)) drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.6));
+}
 
+@keyframes flowRopeEnergy {
+    from {
+        stroke-dashoffset: 1000; /* La energía fluye en una dirección */
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Contenedor general que abarca el ancho de la pantalla */
+.asteroid-belt-container {
+    position: absolute;
+    width: 100%;
+    height: auto;
+    bottom: 1%; /* Ubicación: un poco más abajo del astronauta */
+    left: 0;
+    z-index: 3; /* Por encima de la galaxia */
+    overflow: hidden; /* Evita que aparezca barra de scroll horizontal en la web */
+    pointer-events: none;
+    display: flex; /* Usamos flexbox para alinear el contenido */
+    justify-content: flex-end; /* Alinea el contenido (los asteroides) a la derecha */
+}
+
+/* La huincha de asteroides de 2000px */
+.asteroid-belt-strip {
+    display: block;
+    width: 1500px; /* Forzamos su ancho nativo */
+    height: auto;
+    max-width: none; /* Evita que los estilos responsivos por defecto la achiquen */
+    opacity: 0.85;
+    filter: drop-shadow(0px 15px 20px rgba(0, 0, 0, 0.8));
+}
 
     /* ==========================================================================
        4. SECCIÓN SERVICIOS (GRID CÓSMICO)

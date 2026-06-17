@@ -20,9 +20,9 @@
 </head>
 <body>
 
-    <canvas id="starfield"></canvas>
+  
     
-    <div class="app-container">
+  
         
         <header>
             <div class="logo">
@@ -38,8 +38,15 @@
         </header>
 
 <section class="hero">
+      <canvas id="starfield"></canvas>
     <div class="hero-background-galaxy"></div>
-
+<svg class="space-rope-svg">
+    <defs>
+    <linearGradient id="rope-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#a855f7" stop-opacity="0.9" /> >         <stop offset="100%" stop-color="#c3c3f3" stop-opacity="0.6" /> > </linearGradient>
+</defs>
+        <path id="space-rope" d="" />
+    </svg>
     <h1>CONSTRUIMOS TU<br>ESPACIO EN LA RED</h1>
     <p class="subtitulo">Desarrollamos soluciones web de alto rendimiento y diseño impecable.</p>
     
@@ -49,6 +56,10 @@
     </div>
 
     <img src="astronauta.webp" alt="Astronauta" class="hero-astronaut">
+
+<div class="asteroid-belt-container">
+    <img src="asteroide1.webp" class="asteroid-belt-strip" alt="Cinturón de Asteroides">
+</div>
 </section>
 
         <section id="servicios" class="services">
@@ -151,7 +162,7 @@
             <div class="sparkle-icon"></div>
         </footer>
 
-    </div>
+    
 
 </body>
 </html>
