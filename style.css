@@ -230,6 +230,11 @@ background-image: url('fondo4.webp'); /* Fondo espacial con nebulosas y estrella
     transform: translate3d(0, 0, 0);
 }
 
+@media screen and (max-width: 768px) {
+    .hero {
+      height: 110vh;
+    }
+}
 
 .hero h1 {
     font-size: clamp(2.0rem, 4.8vw, 5.2rem); 
@@ -292,9 +297,9 @@ background-image: url('fondo4.webp'); /* Fondo espacial con nebulosas y estrella
 /* Ajustes mínimos para móviles compactos */
 @media (max-width: 767px) {
     .hero-satellite {
-        top: -25%;
-        left: -15%;
-        width: clamp(60px, 18vw, 95px); /* Un poco más pequeño en teléfonos */
+        top: 50%;
+        left: -35%;
+        width: clamp(80px, 18vw, 95px); /* Un poco más pequeño en teléfonos */
     }
 }
 
@@ -376,6 +381,22 @@ background-image: url('fondo4.webp'); /* Fondo espacial con nebulosas y estrella
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
 }
+@media screen and (max-width: 768px) {
+.hero-astronaut {
+    position: absolute;
+    width: clamp(150px, 15vw, 300px); 
+    bottom: -70%;
+    right: -60%;
+    z-index: 3;
+    pointer-events: none; 
+
+    /* OPTIMIZACIÓN GPU: Crítico para la flotación continua e ingravidez */
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+}}
+
+
 
 .space-rope-svg {
     position: absolute;
