@@ -291,7 +291,9 @@ background-image: url('fondo4.webp'); /* Fondo espacial con nebulosas y estrella
     pointer-events: none; /* Evita interferir con los clics del usuario */
     
     /* Filtro sutil para acoplarlo con el sombreado del espacio */
-    filter: drop-shadow(-5px 10px 15px rgba(0, 0, 0, 0.6));
+    /* Modifica el filter que ya tienes en .hero-satellite */
+filter: drop-shadow(-5px 10px 15px rgba(0, 0, 0, 0.7)) 
+        drop-shadow(8px -8px 20px rgba(84, 41, 123, 0.25)); /* Brillo morado sutil que viene del triángulo */
     
     /* Encriptamos directo a la tarjeta de video */
     will-change: transform;
