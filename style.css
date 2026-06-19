@@ -212,7 +212,7 @@ header {
    3. HERO SECTION & GEOMETRÍA (100% RESPONSIVO Y ELÁSTICO - ENVIADO A GPU)
    ========================================================================== */
 .hero {
-    height: 150vh;
+    height: 130vh;
     display: flex;
     flex-direction: column;
     justify-content: center; 
@@ -221,9 +221,10 @@ header {
     position: relative;
     overflow: hidden; 
     perspective: 1000px;
-    background-position: center;
-    background-size: cover;
-
+    background-position: top  left;
+    background-size: 60%;
+    background-repeat: no-repeat;
+background-image: url('fondo4.webp'); /* Fondo espacial con nebulosas y estrellas */
     /* OPTIMIZACIÓN GPU: Aísla el contexto de renderizado del contenedor principal */
     backface-visibility: hidden;
     transform: translate3d(0, 0, 0);
@@ -263,6 +264,38 @@ header {
 
     /* OPTIMIZACIÓN GPU */
     will-change: transform, opacity;
+}
+
+/* --- NUEVO ELEMENTO: SATÉLITE EN INGRAVIDEZ (GPU) --- */
+.hero-satellite {
+    position: absolute;
+    
+    /* Lo posicionamos arriba y desbordado hacia la izquierda del triángulo */
+    top: -30%;
+    left: -90%;
+    
+    /* Tamaño dinámico: máx 180px en pantallas enormes, escala por anchura visual (vw) */
+    width: clamp(180px, 15vw, 280px);
+    height: auto;
+    z-index: 3; /* Por encima de las nubes y el brillo */
+    pointer-events: none; /* Evita interferir con los clics del usuario */
+    
+    /* Filtro sutil para acoplarlo con el sombreado del espacio */
+    filter: drop-shadow(-5px 10px 15px rgba(0, 0, 0, 0.6));
+    
+    /* Encriptamos directo a la tarjeta de video */
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+}
+
+/* Ajustes mínimos para móviles compactos */
+@media (max-width: 767px) {
+    .hero-satellite {
+        top: -25%;
+        left: -15%;
+        width: clamp(60px, 18vw, 95px); /* Un poco más pequeño en teléfonos */
+    }
 }
 
 .hero-geometry {
@@ -333,8 +366,8 @@ header {
 .hero-astronaut {
     position: absolute;
     width: clamp(150px, 15vw, 300px); 
-    bottom: 20%;
-    right: 15%;
+    bottom: -20%;
+    right: -90%;
     z-index: 3;
     pointer-events: none; 
 

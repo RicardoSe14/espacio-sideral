@@ -251,6 +251,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- ANIMACIONES FLOTANTES CONTINUAS ---
     gsap.to('.hero-geometry .main-shape', { y: "+=12", rotationY: "+=4", duration: 4.5, ease: "sine.inOut", repeat: -1, yoyo: true });
     gsap.to('.geometry-glow', { scale: 1.15, opacity: 0.4, duration: 3.5, ease: "sine.inOut", repeat: -1, yoyo: true });
+    // Flotación independiente del satélite en el espacio profundo
+gsap.to('.hero-satellite', { 
+    y: "+=22", 
+    x: "-=8",
+    rotation: -6, 
+    duration: 6.5, 
+    repeat: -1, 
+    yoyo: true, 
+    ease: "sine.inOut" 
+});
    
 
    
