@@ -208,9 +208,9 @@ header {
     }
 
 
-    /* ==========================================================================
-       3. HERO SECTION & GEOMETRÍA (100% RESPONSIVO Y ELÁSTICO)
-       ========================================================================== */
+/* ==========================================================================
+   3. HERO SECTION & GEOMETRÍA (100% RESPONSIVO Y ELÁSTICO - ENVIADO A GPU)
+   ========================================================================== */
 .hero {
     height: 150vh;
     display: flex;
@@ -220,13 +220,13 @@ header {
     text-align: center;
     position: relative;
     overflow: hidden; 
-    backface-visibility: hidden;
     perspective: 1000px;
-
-    /* MODIFICADO: Añadimos una capa negra semitransparente (0.7) sobre la imagen */
-
     background-position: center;
     background-size: cover;
+
+    /* OPTIMIZACIÓN GPU: Aísla el contexto de renderizado del contenedor principal */
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
 }
 
 .hero-background-galaxy {
@@ -235,130 +235,142 @@ header {
     left: 10%;
     width: 80%;
     height: 80%;
-    /* Múltiples capas: nubes ambientales en los extremos + tu imagen central */
-    background-image: 
- 
-        url('galaxia.webp');
+    background-image: url('galaxia.webp');
     background-size: cover, cover, cover;
     background-position: center;
-    opacity: 0.9; /* Sube un poco la opacidad si lo ves muy apagado */
+    opacity: 0.9; 
     z-index: 0;
     mix-blend-mode: screen;
     pointer-events: none;
+
+    /* OPTIMIZACIÓN GPU: Preparado para la rotación infinita de GSAP */
     will-change: transform;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
 }
 
 @media (max-width: 768px) {
     .hero-background-galaxy {
-        /* 'contain' hará que toda la galaxia sea visible sin recortarse */
         background-size: cover;
-
-        /* Repetimos 'no-repeat' para evitar que se duplique si el div es muy alto */
         background-repeat: no-repeat;
-        /* Ajusta la altura si el div padre es demasiado grande */
         width: 140%;
         height: 100%;
-        left: -25%; /* Centra la galaxia aunque el div sea más ancho */ 
+        left: -25%; 
     }
 }
 
-    .hero h1 {
-        /* clamp(mínimo, dinámico, máximo) -> Escala perfectamente entre 1350px y 1080p */
-        font-size: clamp(2.0rem, 4.8vw, 5.2rem); 
-        font-weight: 800;
-        letter-spacing: -1px;
-        line-height: 1.15;
-        margin-bottom: clamp(12px, 2vh, 20px); 
-        max-width: 90%; /* Evita que choque con los bordes del app-container */
-        width: 1100px;
-        background: linear-gradient(180deg, #c3c3f3 0%, #a881b8 50%, #6d3e7a 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        opacity: 0;
-        transform: translateY(30px);
-        z-index: 2
-    }
+.hero h1 {
+    font-size: clamp(2.0rem, 4.8vw, 5.2rem); 
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.15;
+    margin-bottom: clamp(12px, 2vh, 20px); 
+    max-width: 90%; 
+    width: 1100px;
+    background: linear-gradient(180deg, #c3c3f3 0%, #a881b8 50%, #6d3e7a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0;
+    transform: translateY(30px);
+    z-index: 2;
 
-    .hero p {
-        /* El subtítulo también se encoge de forma sutil en pantallas compactas */
-        font-size: clamp(1rem, 1.3vw, 1.4rem); 
-        color: #e4e5f8;
-        max-width: 90%;
-        width: 700px; 
-        margin-bottom: clamp(30px, 5vh, 60px); /* El espacio vertical se reduce si la pantalla es baja */
-        line-height: 1.6;
-        font-weight: 400;
-        opacity: 0;
-        transform: translateY(30px);
-        z-index: 2
-    }
+    /* OPTIMIZACIÓN GPU: Suaviza la animación de entrada inicial */
+    will-change: transform, opacity;
+}
 
-    .hero-geometry {
-        position: relative;
-        /* El tamaño del logo ahora se calcula en base a la altura disponible (vh) para que nunca se desborde abajo */
-                max-width: 100%;
-        width: clamp(340px, 50vh, 500px);  
-        height: clamp(240px, 44vh, 360px); 
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        opacity: 0; 
-        transform: scale(0.8);
-        margin-top: 0; 
-        margin-bottom: 20px; 
-        will-change: transform, opacity, filter;
-        overflow: visible; 
-        z-index: 2
-    }
+.hero p {
+    font-size: clamp(1rem, 1.3vw, 1.4rem); 
+    color: #e4e5f8;
+    max-width: 90%;
+    width: 700px; 
+    margin-bottom: clamp(30px, 5vh, 60px); 
+    line-height: 1.6;
+    font-weight: 400;
+    opacity: 0;
+    transform: translateY(30px);
+    z-index: 2;
 
-    .hero-geometry .main-shape {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        z-index: 2;
-        position: relative;
-    }
+    /* OPTIMIZACIÓN GPU */
+    will-change: transform, opacity;
+}
 
-    /* EFECTO NEBULOSA ADAPTATIVO */
+.hero-geometry {
+    position: relative;
+    max-width: 100%;
+    width: clamp(340px, 50vh, 500px);  
+    height: clamp(240px, 44vh, 360px); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0; 
+    transform: scale(0.8) translate3d(0, 0, 0);
+    margin-top: 0; 
+    margin-bottom: 20px; 
+    overflow: visible; 
+    z-index: 2;
+
+    /* OPTIMIZACIÓN GPU: Clave para el movimiento elástico y paralaje del mouse sin lag */
+    will-change: transform, opacity, filter;
+    backface-visibility: hidden;
+}
+
+.hero-geometry .main-shape {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 2;
+    position: relative;
+    
+    /* OPTIMIZACIÓN GPU */
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+}
+
+/* EFECTO NEBULOSA ADAPTATIVO */
 .geometry-glow {
     position: absolute;
-    width: 200%;  /* Incrementado de 180% a 220% */
+    width: 200%;  
     height: 100%; 
     background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 50%, rgba(109, 62, 122, 0.15) 50%, rgba(0, 0, 0, 0) 75%);
     border-radius: 50%;
     z-index: 1;
-    filter: blur(min(110px, 10vw)); /* Un difuminado más amplio y atmosférico */
+    filter: blur(min(110px, 10vw)); 
     pointer-events: none;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); 
+    transform: translate(-50%, -50%) translate3d(0, 0, 0); 
+
+    /* OPTIMIZACIÓN GPU: Evita que el filtro de desenfoque (blur) pesado sature la CPU */
+    will-change: transform, opacity;
 }
 
 /* RESPONSIVO: Ajustes exclusivos para dispositivos móviles */
 @media (max-width: 767px) {
     .hero-geometry {
-        /* Reducimos las dimensiones a la mitad utilizando clamp adaptado a móviles */
         width: clamp(170px, 25vh, 250px);  
         height: clamp(120px, 22vh, 180px); 
-        margin-bottom: 10px; /* Reducimos un poco el margen para optimizar el espacio vertical */
+        margin-bottom: 10px; 
     }
 
     .geometry-glow {
-        /* Ajustamos el tamaño del aura para que no sature la pantalla del teléfono */
         width: 180%; 
         height: 180%;
-        filter: blur(min(50px, 12vw)); /* Desenfoque más controlado para pantallas pequeñas */
+        filter: blur(min(50px, 12vw)); 
     }
 }
 
-    .hero-astronaut {
+.hero-astronaut {
     position: absolute;
-    width: clamp(150px, 15vw, 300px); /* Tamaño responsive */
+    width: clamp(150px, 15vw, 300px); 
     bottom: 20%;
     right: 15%;
     z-index: 3;
-    pointer-events: none; /* Para que no interfiera con el mouse */
+    pointer-events: none; 
+
+    /* OPTIMIZACIÓN GPU: Crítico para la flotación continua e ingravidez */
     will-change: transform;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
 }
 
 .space-rope-svg {
@@ -367,25 +379,30 @@ header {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1; /* Por encima de la galaxia (z-index: 0) y por debajo del astronauta */
-    pointer-events: none; /* No interrumpe las interacciones del mouse */
+    z-index: 1; 
+    pointer-events: none; 
     overflow: visible;
+
+    /* OPTIMIZACIÓN GPU: Ayuda al cálculo de la física fluida del cable */
+    transform: translate3d(0, 0, 0);
 }
 
 #space-rope {
     fill: none;
-    stroke: url(#rope-gradient); /* Usaremos un gradiente para que brille */
-    stroke-width: 2.5;            /* Grosor del cable */
+    stroke: url(#rope-gradient); 
+    stroke-width: 2.5;            
     stroke-linecap: round;
-    stroke-dasharray: 60, 4; /* Crea segmentos de luz de 60px y espacios de 4px */
-    animation: flowRopeEnergy 15s linear infinite; /* Anima el flujo de los segmentos */
-    /* Efecto de brillo de neón con drop-shadow */
+    stroke-dasharray: 60, 4; 
+    animation: flowRopeEnergy 15s linear infinite; 
     filter: drop-shadow(0px 0px 8px rgba(255, 255, 255, 0.8)) drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.6));
+    
+    /* OPTIMIZACIÓN GPU */
+    will-change: stroke-dashoffset;
 }
 
 @keyframes flowRopeEnergy {
     from {
-        stroke-dashoffset: 1000; /* La energía fluye en una dirección */
+        stroke-dashoffset: 1000; 
     }
     to {
         stroke-dashoffset: 0;
@@ -397,42 +414,43 @@ header {
     position: absolute;
     width: 100%;
     height: auto;
-    bottom: 5%; /* Ubicación: un poco más abajo del astronauta */
+    bottom: 5%; 
     left: 0;
-    z-index: 3; /* Por encima de la galaxia */
-    overflow: hidden; /* Evita que aparezca barra de scroll horizontal en la web */
+    z-index: 3; 
+    overflow: hidden; 
     pointer-events: none;
-    display: flex; /* Usamos flexbox para alinear el contenido */
-    justify-content: flex-end; /* Alinea el contenido (los asteroides) a la derecha */
+    display: flex; 
+    justify-content: flex-end; 
+    
+    /* OPTIMIZACIÓN GPU: Envía la huincha completa al hardware de video */
     will-change: transform;
-    transform: translateZ(0);
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
 }
 
-/* La huincha de asteroides (por defecto para escritorio y tablets grandes) */
+/* La huincha de asteroides */
 .asteroid-belt-strip {
     display: block;
-    width: 1500px; /* Ancho para pantallas grandes */
+    width: 1500px; 
     height: auto;
-    max-width: none; /* Evita que los estilos responsivos por defecto la achiquen */
+    max-width: none; 
     opacity: 0.85;
     filter: drop-shadow(0px 15px 20px rgba(0, 0, 0, 0.8));
+
+    /* OPTIMIZACIÓN GPU */
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
 }
 
-/* --- Ajustes para Responsivo (Móviles) --- */
-
-/* Se aplica a pantallas con un ancho de 768px o menos (típico para móviles y tablets en vertical) */
-/* --- Ajustes para Responsivo (Móviles) --- */
+/* Ajustes para Responsivo (Móviles) */
 @media screen and (max-width: 768px) {
     .asteroid-belt-strip {
-        /* En vez de 100%, le damos un ancho fijo intermedio para que los asteroides */
-        /* mantengan un tamaño físico grande y se desborden elegantemente hacia la izquierda */
         width: 850px; 
-        max-width: none; /* Rompemos cualquier restricción de compresión */
-        height: auto; /* Mantiene la proporción perfecta sin deformar */
-        opacity: 0.9; /* Un pelín más de presencia en pantallas pequeñas */
+        max-width: none; 
+        height: auto; 
+        opacity: 0.9; 
     }
 }
-
     /* ==========================================================================
        4. SECCIÓN SERVICIOS (GRID CÓSMICO)
        ========================================================================== */
