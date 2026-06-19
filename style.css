@@ -212,7 +212,7 @@ header {
        3. HERO SECTION & GEOMETRÍA (100% RESPONSIVO Y ELÁSTICO)
        ========================================================================== */
 .hero {
-    height: 110vh;
+    height: 150vh;
     display: flex;
     flex-direction: column;
     justify-content: center; 
@@ -232,9 +232,9 @@ header {
 .hero-background-galaxy {
     position: absolute;
     top: 5%;
-    left: 5%;
-    width: 90%;
-    height: 90%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
     /* Múltiples capas: nubes ambientales en los extremos + tu imagen central */
     background-image: 
  

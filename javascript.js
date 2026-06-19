@@ -1,3 +1,4 @@
+
 // ==========================================================================
 // 1. CONFIGURACIÓN DEL MOTOR GRÁFICO DEL ESPACIO (CANVAS STARFIELD - HERO ONLY)
 // ==========================================================================
@@ -7,7 +8,7 @@ const heroSection = document.querySelector('.hero');
 
 let stars = [];
 let nebulas = [];
-const numStars = 200; 
+const numStars = 120; 
 let isHeroVisible = true;
 
 let shootingStar = {
@@ -19,24 +20,42 @@ let shootingStar = {
 let mouse = { x: -1000, y: -1000, targetX: -1000, targetY: -1000 };
 let scroll = { current: 0, target: 0, speed: 0 };
 
+// OPTIMIZACIÓN: Constante precalculada para evitar multiplicar en cada frame
+const TWO_PI = Math.PI * 2;
+
 function resizeCanvas() {
     if (!heroSection) return;
-    canvas.width = window.innerWidth;
-    canvas.height = heroSection.offsetHeight; 
-    initSpace();
+    
+    // OPTIMIZACIÓN: Forzado de Pixel Ratio controlado para evitar lag en pantallas densas
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const width = window.innerWidth;
+    const height = heroSection.offsetHeight;
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr; 
+    
+    ctx.scale(dpr, dpr);
+
+    if (width < 768) {
+        isHeroVisible = false;
+        canvas.style.display = 'none';
+    } else {
+        isHeroVisible = true;
+        canvas.style.display = 'block';
+        initSpace(width, height);
+    }
 }
 
-function initSpace() {
-    if (canvas.width === 0 || canvas.height === 0) return;
+function initSpace(width, height) {
+    if (width === 0 || height === 0) return;
 
     stars = [];
     for(let i = 0; i < numStars; i++) {
-        // Un 8% de las estrellas totales se convertirán en Luceros grandes con Aura
         const isLucero = Math.random() < 0.08; 
 
         stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
+            x: Math.random() * width,
+            y: Math.random() * height,
             radius: isLucero ? Math.random() * 1.5 + 2.5 : Math.random() * 1.4 + 0.3, 
             baseOpacity: isLucero ? Math.random() * 0.4 + 0.6 : Math.random() * 0.6 + 0.4, 
             opacity: Math.random() * 0.6,
@@ -46,11 +65,11 @@ function initSpace() {
         });
     }
 
-    const baseScale = Math.max(canvas.width, canvas.height);
+    const baseScale = Math.max(width, height);
     nebulas = [
-        { x: canvas.width * 0.2, y: canvas.height * 0.3, vx: 0.22, vy: 0.14, radius: baseScale * 0.75, hue: 270, hueSpeed: 0.15, maxOpacity: 0.18 },
-        { x: canvas.width * 0.8, y: canvas.height * 0.7, vx: -0.18, vy: 0.11, radius: baseScale * 0.85, hue: 210, hueSpeed: 0.12, maxOpacity: 0.15 },
-        { x: canvas.width * 0.5, y: canvas.height * 0.4, vx: 0.13, vy: -0.18, radius: baseScale * 0.55, hue: 330, hueSpeed: 0.20, maxOpacity: 0.13 }
+        { x: width * 0.2, y: height * 0.3, vx: 0.22, vy: 0.14, radius: baseScale * 0.75, hue: 270, hueSpeed: 0.15, maxOpacity: 0.18 },
+        { x: width * 0.8, y: height * 0.7, vx: -0.18, vy: 0.11, radius: baseScale * 0.85, hue: 210, hueSpeed: 0.12, maxOpacity: 0.15 },
+        { x: width * 0.5, y: height * 0.4, vx: 0.13, vy: -0.18, radius: baseScale * 0.55, hue: 330, hueSpeed: 0.20, maxOpacity: 0.13 }
     ];
 }
 
@@ -60,6 +79,10 @@ function drawSpace() {
         return;
     }
 
+    // Cache de dimensiones lógicas del viewport
+    const w = canvas.width / (window.devicePixelRatio || 1);
+    const h = canvas.height / (window.devicePixelRatio || 1);
+
     mouse.x += (mouse.targetX - mouse.x) * 0.08;
     mouse.y += (mouse.targetY - mouse.y) * 0.08;
     
@@ -67,7 +90,7 @@ function drawSpace() {
     scroll.current += (scroll.target - scroll.current) * 0.1;
     scroll.speed = Math.abs(scroll.current - lastScrollCurrent); 
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, w, h);
     ctx.globalCompositeOperation = 'screen';
     
     const nebulaScrollY = scroll.current * 0.04; 
@@ -75,96 +98,119 @@ function drawSpace() {
     // RENDER DE NEBULOSAS
     nebulas.forEach(nebula => {
         nebula.x += nebula.vx; nebula.y += nebula.vy;
-        if (nebula.x < -nebula.radius/3 || nebula.x > canvas.width + nebula.radius/3) nebula.vx *= -1;
-        if (nebula.y < -nebula.radius/3 || nebula.y > canvas.height + nebula.radius/3) nebula.vy *= -1;
+        if (nebula.x < -nebula.radius/3 || nebula.x > w + nebula.radius/3) nebula.vx *= -1;
+        if (nebula.y < -nebula.radius/3 || nebula.y > h + nebula.radius/3) nebula.vy *= -1;
         nebula.hue = (nebula.hue + nebula.hueSpeed) % 360;
 
         let gradient = ctx.createRadialGradient(nebula.x, nebula.y - nebulaScrollY, 0, nebula.x, nebula.y - nebulaScrollY, nebula.radius);
         gradient.addColorStop(0, `hsla(${nebula.hue}, 85%, 60%, ${nebula.maxOpacity})`);
         gradient.addColorStop(0.3, `hsla(${nebula.hue}, 80%, 55%, ${nebula.maxOpacity * 0.4})`);
         gradient.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = gradient; 
+        ctx.fillRect(0, 0, w, h);
     });
 
     // RENDER DE ESTRELLA FUGAZ
     if (shootingStar.active) {
         shootingStar.x += shootingStar.dx; shootingStar.y += shootingStar.dy;
         shootingStar.opacity -= 0.02;
-        if (shootingStar.opacity <= 0 || shootingStar.x > canvas.width || shootingStar.y > canvas.height) {
+        if (shootingStar.opacity <= 0 || shootingStar.x > w || shootingStar.y > h) {
             shootingStar.active = false;
         } else {
             ctx.beginPath();
+            let travelX = shootingStar.dx * (shootingStar.length / shootingStar.speed);
+            let travelY = shootingStar.dy * (shootingStar.length / shootingStar.speed);
             let starGrad = ctx.createLinearGradient(
                 shootingStar.x, shootingStar.y, 
-                shootingStar.x - shootingStar.dx * (shootingStar.length / shootingStar.speed), 
-                shootingStar.y - shootingStar.dy * (shootingStar.length / shootingStar.speed)
+                shootingStar.x - travelX, 
+                shootingStar.y - travelY
             );
             starGrad.addColorStop(0, `rgba(255, 255, 255, ${shootingStar.opacity})`);
             starGrad.addColorStop(0.2, `rgba(176, 130, 199, ${shootingStar.opacity * 0.6})`);
             starGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
             ctx.strokeStyle = starGrad; ctx.lineWidth = 2;
             ctx.moveTo(shootingStar.x, shootingStar.y);
-            ctx.lineTo(shootingStar.x - shootingStar.dx * (shootingStar.length / shootingStar.speed), shootingStar.y - shootingStar.dy * (shootingStar.length / shootingStar.speed));
+            ctx.lineTo(shootingStar.x - travelX, shootingStar.y - travelY);
             ctx.stroke();
         }
     }
 
-    // RENDER DEL POLVO DE ESTRELLAS Y LUCEROS
+    // ==========================================================================
+    // RENDER OPTIMIZADO DEL POLVO DE ESTRELLAS (FASE 1: ESTRELLAS COMUNES)
+    // ==========================================================================
+    ctx.beginPath();
     stars.forEach(star => {
         star.opacity += star.speed * star.factor;
         if(star.opacity >= star.baseOpacity || star.opacity <= 0.05) star.factor *= -1;
 
+        // Saltamos los luceros para procesarlos de forma aislada en la fase 2
+        if (star.isLucero) return;
+
         let starY = star.y; 
         let starX = star.x;
 
-        const dx = mouse.x - starX; const dy = mouse.y - starY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < 220) {
-            const force = (220 - distance) / 220;
-            starX -= (dx / distance) * force * 28; starY -= (dy / distance) * force * 28;
+        const dx = mouse.x - starX; 
+        const dy = mouse.y - starY;
+        const distSq = dx * dx + dy * dy;
+        
+        if (distSq < 48400) { // 220 * 220 = 48400
+            const distance = Math.sqrt(distSq);
+            if (distance > 0) {
+                const force = (220 - distance) / 220;
+                starX -= (dx / distance) * force * 28; 
+                starY -= (dy / distance) * force * 28;
+            }
         }
 
-        // Se eliminó la deformación estirada por scroll para mantener forma esférica pura
-if (star.isLucero) {
-            // --- NUEVO: RENDER DE LUCERO CON MÁS AURA TODAVÍA ---
-            ctx.save(); // Aislamos los estilos para que el aura no afecte a las estrellas comunes
-            
-            // 1. MODIFICADO: Aumentamos radicalmente el radio del Aura.
-            // Original: star.radius * 15. Nuevo: star.radius * 35.
-            ctx.shadowBlur = star.radius * 35; // Aura súper expansiva
-            
-            // 2. MODIFICADO: Hacemos el color del aura más intenso y presente.
-            // Subimos la opacidad mínima de 0.1 a 0.35 para que el resplandor sea muy visible.
-            ctx.shadowColor = `rgba(186, 140, 255, ${Math.max(0.35, star.opacity)})`; 
-            
-            // 3. MODIFICADO: Gradiente interno más suave y grande.
-            // Expandimos el gradiente radial de star.radius * 3 a star.radius * 6.
-            let glowGrad = ctx.createRadialGradient(starX, starY, 0, starX, starY, star.radius * 6);
-            glowGrad.addColorStop(0, `rgba(255, 255, 255, ${Math.max(0.2, star.opacity)})`);
-            glowGrad.addColorStop(0.3, `rgba(160, 100, 255, ${Math.max(0.1, star.opacity * 0.6)})`);
-            glowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            
-            // Pintamos el área del destello base que proyectará la sombra/aura.
-            ctx.beginPath();
-            // Original: star.radius * 2. Nuevo: star.radius * 3.
-            ctx.arc(starX, starY, star.radius * 3, 0, Math.PI * 2);
-            ctx.fillStyle = glowGrad;
-            ctx.fill();
+        ctx.moveTo(starX + star.radius, starY);
+        ctx.arc(starX, starY, star.radius, 0, TWO_PI);
+    });
+    
+    ctx.fillStyle = 'rgba(245, 245, 255, 0.55)'; 
+    ctx.fill();
 
-            // 4. Apagamos la sombra temporalmente para dibujar el núcleo blanco puro y denso.
-            ctx.shadowBlur = 0; 
-            ctx.beginPath();
-            ctx.arc(starX, starY, star.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.4, star.opacity)})`;
-            ctx.fill();
-            
-            ctx.restore(); // Devolvemos el lienzo a su estado normal para el siguiente ciclo
-        } else {
-            ctx.beginPath();
-            ctx.arc(starX, starY, star.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(245, 245, 255, ${Math.max(0.1, star.opacity)})`; 
-            ctx.fill();
+    // ==========================================================================
+    // RENDER OPTIMIZADO DEL POLVO DE ESTRELLAS (FASE 2: LUCEROS CON GLOW)
+    // ==========================================================================
+    stars.forEach(star => {
+        if (!star.isLucero) return;
+
+        let starY = star.y; 
+        let starX = star.x;
+
+        const dx = mouse.x - starX; 
+        const dy = mouse.y - starY;
+        const distSq = dx * dx + dy * dy;
+        
+        if (distSq < 48400) { 
+            const distance = Math.sqrt(distSq);
+            if (distance > 0) {
+                const force = (220 - distance) / 220;
+                starX -= (dx / distance) * force * 28; 
+                starY -= (dy / distance) * force * 28;
+            }
         }
+
+        ctx.save(); 
+        ctx.shadowBlur = star.radius * 35; 
+        ctx.shadowColor = `rgba(186, 140, 255, ${star.opacity < 0.35 ? 0.35 : star.opacity})`; 
+        
+        let glowGrad = ctx.createRadialGradient(starX, starY, 0, starX, starY, star.radius * 6);
+        glowGrad.addColorStop(0, `rgba(255, 255, 255, ${star.opacity < 0.2 ? 0.2 : star.opacity})`);
+        glowGrad.addColorStop(0.3, `rgba(160, 100, 255, ${star.opacity * 0.36})`);
+        glowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        
+        ctx.beginPath();
+        ctx.arc(starX, starY, star.radius * 3, 0, TWO_PI);
+        ctx.fillStyle = glowGrad;
+        ctx.fill();
+
+        ctx.shadowBlur = 0; 
+        ctx.beginPath();
+        ctx.arc(starX, starY, star.radius, 0, TWO_PI);
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity < 0.4 ? 0.4 : star.opacity})`;
+        ctx.fill();
+        ctx.restore(); 
     });
 
     requestAnimationFrame(drawSpace);
@@ -172,8 +218,11 @@ if (star.isLucero) {
 
 function launchShootingStar() {
     if (shootingStar.active || !isHeroVisible) return; 
-    shootingStar.x = Math.random() * canvas.width * 0.7;
-    shootingStar.y = Math.random() * canvas.height * 0.4;
+    const w = canvas.width / (window.devicePixelRatio || 1);
+    const h = canvas.height / (window.devicePixelRatio || 1);
+    
+    shootingStar.x = Math.random() * w * 0.7;
+    shootingStar.y = Math.random() * h * 0.4;
     shootingStar.speed = Math.random() * 15 + 15; 
     shootingStar.length = Math.random() * 80 + 60; 
     const angle = Math.PI / 4 + (Math.random() * 0.2 - 0.1); 
@@ -191,13 +240,20 @@ function setupShootingStarTimer() {
     }, randomTime);
 }
 
+// OPTIMIZACIÓN: Throttling del evento scroll con rAF para evitar saltos en pantallas grandes
+let scrollTimeout;
 window.addEventListener('scroll', () => {
-    scroll.target = window.scrollY;
+    if (!scrollTimeout) {
+        window.requestAnimationFrame(() => {
+            scroll.target = window.scrollY;
+            scrollTimeout = false;
+        });
+        scrollTimeout = true;
+    }
 }, { passive: true });
 
 window.addEventListener('resize', resizeCanvas);
 
-// IntersectionObserver para congelar el motor si salimos del Hero
 if (heroSection) {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -214,23 +270,19 @@ gsap.registerPlugin(ScrollTrigger);
 gsap.ticker.lagSmoothing(false);
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Inicialización del motor stelar una sola vez en el DOM
     resizeCanvas();
     drawSpace();
     setupShootingStarTimer();
 
-    // --- TIMELINE DE INTRODUCCIÓN (ENTRY ANIMATION) ---
     const introTl = gsap.timeline();
     introTl.to('.logo img, .nav-center a, .header-btn', { opacity: 1, duration: 0.8, stagger: 0.04, ease: "power2.out" })
            .to('.hero h1', { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6")
            .to('.hero p', { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, "-=0.7")
            .to('.hero-geometry', { opacity: 1, scale: 1, duration: 1.2, ease: "power4.out" }, "-=0.8");
 
-    // --- ANIMACIONES FLOTANTES CONTINUAS ---
     gsap.to('.hero-geometry .main-shape', { y: "+=12", rotationY: "+=4", duration: 4.5, ease: "sine.inOut", repeat: -1, yoyo: true });
     gsap.to('.geometry-glow', { scale: 1.15, opacity: 0.4, duration: 3.5, ease: "sine.inOut", repeat: -1, yoyo: true });
     
-    // Rotación infinita y constante de la galaxia de fondo
     gsap.to('.hero-background-galaxy', { 
         rotation: 360,              
         transformOrigin: "50% 65%", 
@@ -239,7 +291,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ease: "none"                
     });
 
-    // Efecto respiración de la galaxia (Expansión y contracción sutil)
     gsap.to('.hero-background-galaxy', {
         scale: 1.17,                
         transformOrigin: "50% 65%", 
@@ -249,10 +300,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ease: "sine.inOut"          
     });
     
-    // Flotación del astronauta en ingravidez
-    gsap.to('.hero-astronaut', { y: -35, rotation: 4, duration: 5.5, repeat: -1, yoyo: true, ease: "sine.inOut" });
+    // OPTIMIZACIÓN: force3D activo para renderizar transformaciones vía hardware
+    gsap.to('.hero-astronaut', { y: -35, rotation: 4, duration: 5.5, repeat: -1, yoyo: true, ease: "sine.inOut", force3D: true });
 
-    // --- EVENTO INTEGRADO MOUSEMOVE (PARALAJE PROFUNDO) ---
     let lastMouseX = 0;
 
     window.addEventListener('mousemove', (e) => {
@@ -268,7 +318,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const skewAmount = Math.min(mouseSpeed * 0.15, 8); 
         const hueRotateAmount = Math.min(mouseSpeed * 0.6, 45);
 
-        // Capa Media: El Logo Central
         gsap.to('.hero-geometry .main-shape', {
             x: moveX * 0.018, 
             y: moveY * 0.018, 
@@ -279,7 +328,6 @@ document.addEventListener("DOMContentLoaded", () => {
             overwrite: "auto"
         });
         
-        // Retorno elástico del Logo
         gsap.to('.hero-geometry .main-shape', { 
             skewX: 0, 
             filter: "hue-rotate(0deg) drop-shadow(0px 0px 0px rgba(0,0,0,0))", 
@@ -289,16 +337,15 @@ document.addEventListener("DOMContentLoaded", () => {
             overwrite: "none" 
         });
 
-        // Capa Cercana: El Astronauta
         gsap.to('.hero-astronaut', {
             x: moveX * 0.045,
             y: moveY * 0.045,
             duration: 1.5,
-            ease: "power2.out"
+            ease: "power2.out",
+            force3D: true
         });
-    });
+    }, { passive: true });
 
-    // --- ANIMACIONES BASADAS EN SCROLL (SCROLLTRIGGER HERO) ---
     gsap.timeline({ 
         scrollTrigger: { 
             trigger: '.hero', 
@@ -315,7 +362,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ease: "none" 
     });
 
-    // --- SECCIÓN PORTFOLIO HORIZONTAL SINCRO ---
     const portfolioHorizontal = document.querySelector('.portfolio-horizontal');
     
     if (portfolioHorizontal) {
@@ -378,32 +424,36 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- EFECTO SPOTLIGHT INTERACTIVO EN TARJETAS ---
     const cards = document.querySelectorAll('.cosmic-card');
     cards.forEach(card => {
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
             card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
             card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-        });
+        }, { passive: true });
     });
 });
 
 // ==========================================================================
-// 3. SISTEMA DE CUERDA DE FÍSICA FLUIDA AVANZADA (CURVAS CÚBICAS)
+// 3. SISTEMA DE CUERDA DE FÍSICA FLUIDA AVANCED (CURVAS CÚBICAS)
 // ==========================================================================
 const ropePath = document.getElementById('space-rope');
 const galaxyContainer = document.querySelector('.hero-geometry'); 
 const astronautElement = document.querySelector('.hero-astronaut'); 
+const heroEl = document.querySelector('.hero');
 
 let waveTimeline = 0;
 
 function updateRope() {
-    if (!ropePath || !galaxyContainer || !astronautElement) return;
+    // OPTIMIZACIÓN: Si la sección principal no está visible, pausamos cálculos complejos de la cuerda
+    if (!ropePath || !galaxyContainer || !astronautElement || !isHeroVisible) {
+        requestAnimationFrame(updateRope);
+        return;
+    }
 
     const rectGalaxy = galaxyContainer.getBoundingClientRect();
     const rectAstronaut = astronautElement.getBoundingClientRect();
-    const rectHero = document.querySelector('.hero').getBoundingClientRect();
+    const rectHero = heroEl.getBoundingClientRect();
 
     const startX = (rectGalaxy.left + rectGalaxy.width / 2) - rectHero.left;
     const startY = (rectGalaxy.top + rectGalaxy.height * 0.65) - rectHero.top;
@@ -431,13 +481,11 @@ function updateRope() {
     const control2X = startX + (dx * 0.65) - currentWaveX; 
     const control2Y = startY + (dy * 0.65) - 60 - currentWaveY; 
 
-    const dAttribute = `M ${startX} ${startY} C ${control1X} ${control1Y} ${control2X} ${control2Y}, ${endX} ${endY}`;
-    ropePath.setAttribute('d', dAttribute);
+    ropePath.setAttribute('d', `M ${startX} ${startY} C ${control1X} ${control1Y} ${control2X} ${control2Y}, ${endX} ${endY}`);
 
     requestAnimationFrame(updateRope);
 }
 
-// Activa el bucle de la física de la cuerda
 requestAnimationFrame(updateRope);
 
 // ==========================================================================
@@ -450,3 +498,4 @@ gsap.to('.asteroid-belt-strip', {
     yoyo: true,
     ease: "sine.inOut"
 });
+
