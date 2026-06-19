@@ -498,4 +498,3 @@ gsap.to('.asteroid-belt-strip', {
     yoyo: true,
     ease: "sine.inOut"
 });
-
