@@ -28,6 +28,9 @@
     
     /* NUEVO: Hace que los colores del canvas sumen luz a la imagen de fondo */
     mix-blend-mode: screen; 
+    object-fit: fill; /* Clave para que el re-escalado por hardware cubra toda la sección */
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 
@@ -47,7 +50,7 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 0 4%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
     z-index: 1000;
     box-sizing: border-box;
@@ -215,9 +218,10 @@ header {
     justify-content: center; 
     align-items: center;
     text-align: center;
-    padding-top: 100px; 
     position: relative;
     overflow: hidden; 
+    backface-visibility: hidden;
+    perspective: 1000px;
 
     /* MODIFICADO: Añadimos una capa negra semitransparente (0.7) sobre la imagen */
 
@@ -350,7 +354,7 @@ header {
     .hero-astronaut {
     position: absolute;
     width: clamp(150px, 15vw, 300px); /* Tamaño responsive */
-    bottom: 5%;
+    bottom: 20%;
     right: 15%;
     z-index: 3;
     pointer-events: none; /* Para que no interfiera con el mouse */
@@ -393,13 +397,15 @@ header {
     position: absolute;
     width: 100%;
     height: auto;
-    bottom: 1%; /* Ubicación: un poco más abajo del astronauta */
+    bottom: 5%; /* Ubicación: un poco más abajo del astronauta */
     left: 0;
     z-index: 3; /* Por encima de la galaxia */
     overflow: hidden; /* Evita que aparezca barra de scroll horizontal en la web */
     pointer-events: none;
     display: flex; /* Usamos flexbox para alinear el contenido */
     justify-content: flex-end; /* Alinea el contenido (los asteroides) a la derecha */
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 /* La huincha de asteroides (por defecto para escritorio y tablets grandes) */
