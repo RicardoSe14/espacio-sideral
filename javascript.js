@@ -7,7 +7,7 @@ const heroSection = document.querySelector('.hero');
 
 let stars = [];
 let nebulas = [];
-const numStars = 150;
+const numStars = 120;
 let isHeroVisible = true;
 
 let shootingStar = {
@@ -252,24 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
     gsap.to('.hero-geometry .main-shape', { y: "+=12", rotationY: "+=4", duration: 4.5, ease: "sine.inOut", repeat: -1, yoyo: true });
     gsap.to('.geometry-glow', { scale: 1.15, opacity: 0.4, duration: 3.5, ease: "sine.inOut", repeat: -1, yoyo: true });
    
-    // Rotación infinita y constante de la galaxia de fondo
-    gsap.to('.hero-background-galaxy', {
-        rotation: 360,              
-        transformOrigin: "50% 65%",
-        duration: 30,               
-        repeat: -1,                 
-        ease: "none"                
-    });
 
-    // Efecto respiración de la galaxia (Expansión y contracción sutil)
-    gsap.to('.hero-background-galaxy', {
-        scale: 1.17,                
-        transformOrigin: "50% 65%",
-        duration: 8,                
-        repeat: -1,                 
-        yoyo: true,                 
-        ease: "sine.inOut"          
-    });
    
     // Flotación del astronauta en ingravidez
     gsap.to('.hero-astronaut', { y: -35, rotation: 4, duration: 5.5, repeat: -1, yoyo: true, ease: "sine.inOut" });

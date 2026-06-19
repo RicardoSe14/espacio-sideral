@@ -229,35 +229,6 @@ header {
     transform: translate3d(0, 0, 0);
 }
 
-.hero-background-galaxy {
-    position: absolute;
-    top: 5%;
-    left: 10%;
-    width: 80%;
-    height: 80%;
-    background-image: url('galaxia.webp');
-    background-size: cover, cover, cover;
-    background-position: center;
-    opacity: 0.9; 
-    z-index: 0;
-    mix-blend-mode: screen;
-    pointer-events: none;
-
-    /* OPTIMIZACIÓN GPU: Preparado para la rotación infinita de GSAP */
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-}
-
-@media (max-width: 768px) {
-    .hero-background-galaxy {
-        background-size: cover;
-        background-repeat: no-repeat;
-        width: 140%;
-        height: 100%;
-        left: -25%; 
-    }
-}
 
 .hero h1 {
     font-size: clamp(2.0rem, 4.8vw, 5.2rem); 
