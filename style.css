@@ -233,6 +233,11 @@ background-image: url('fondo4.webp'); /* Fondo espacial con nebulosas y estrella
 @media screen and (max-width: 768px) {
     .hero {
       height: 110vh;
+          background-position: top 6% left;
+    background-size: 100%;
+    background-repeat: no-repeat;
+background-image: url('fondo4.webp'); /* Fondo espacial con nebulosas y estrellas */
+    /* OPTIMIZACIÓN GPU: Aísla el contexto de renderizado del contenedor principal */
     }
 }
 
