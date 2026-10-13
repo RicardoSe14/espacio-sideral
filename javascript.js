@@ -1,467 +1,414 @@
-// ==========================================================================
-// 1. CONFIGURACIÓN DEL MOTOR GRÁFICO DEL ESPACIO (CANVAS STARFIELD - HERO ONLY)
-// ==========================================================================
-const canvas = document.getElementById('starfield');
-const ctx = canvas.getContext('2d');
-const heroSection = document.querySelector('.hero');
+// Navegación fluida del menú vinculada a la línea de tiempo de GSAP
+document.querySelectorAll('.nav-center a').forEach(enlace => {
+    enlace.addEventListener('click', function(e) {
+        e.preventDefault(); // Evita el salto brusco del navegador
+        
+        const targetId = this.getAttribute('href').replace('#', '');
+        
+        // Mapeamos los IDs de tus enlaces con las "etiquetas" (labels) creadas en el timeline de GSAP
+        const labelMap = {
+            'services': 'services-container',
+            'portfolio': 'project-0', // Te lleva al inicio de los proyectos
+            'contact': 'contacto'
+        };
+        
+        const targetLabel = labelMap[targetId];
+        const scrollTriggerInstance = ScrollTrigger.getById("mainScroll");
+        
+        if (scrollTriggerInstance && scrollTriggerInstance.animation && targetLabel) {
+            const timeline = scrollTriggerInstance.animation;
+            // Calcula el progreso en la línea de tiempo donde está la etiqueta
+            const labelProgress = timeline.labels[targetLabel] / timeline.totalDuration();
+            // Calcula los pixeles exactos de scroll que corresponden a ese progreso
+            const targetScroll = scrollTriggerInstance.start + (scrollTriggerInstance.end - scrollTriggerInstance.start) * labelProgress;
+            
+            // Realiza la animación suave hacia esa sección
+            gsap.to(window, { scrollTo: targetScroll, duration: 1.5, ease: "power3.out" });
+        }
+    });
+});
 
-let stars = [];
-let nebulas = [];
-const numStars = 120;
-let isHeroVisible = true;
 
-let shootingStar = {
-    x: 0, y: 0, dx: 0, dy: 0,
-    length: 0, speed: 0,
-    active: false, opacity: 0
-};
+
+
 
 let mouse = { x: -1000, y: -1000, targetX: -1000, targetY: -1000 };
-let scroll = { current: 0, target: 0, speed: 0 };
-
-// Optimización: Constante matemática precalculada para ahorrar ciclos en bucles de alta frecuencia
-const TWO_PI = Math.PI * 2;
-
-function resizeCanvas() {
-    if (!heroSection) return;
-    canvas.width = window.innerWidth;
-    canvas.height = heroSection.offsetHeight;
-    initSpace();
-}
-
-function initSpace() {
-    if (canvas.width === 0 || canvas.height === 0) return;
-
-    stars = [];
-    for(let i = 0; i < numStars; i++) {
-        // Un 8% de las estrellas totales se convertirán en Luceros grandes con Aura
-        const isLucero = Math.random() < 0.08;
-
-        stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            radius: isLucero ? Math.random() * 1.5 + 2.5 : Math.random() * 1.4 + 0.3,
-            baseOpacity: isLucero ? Math.random() * 0.4 + 0.6 : Math.random() * 0.6 + 0.4,
-            opacity: Math.random() * 0.6,
-            speed: isLucero ? Math.random() * 0.008 + 0.003 : Math.random() * 0.01 + 0.004,
-            factor: Math.random() > 0.5 ? 1 : -1,
-            isLucero: isLucero
-        });
-    }
-
-    const baseScale = Math.max(canvas.width, canvas.height);
-    nebulas = [
-        { x: canvas.width * 0.2, y: canvas.height * 0.3, vx: 0.22, vy: 0.14, radius: baseScale * 0.75, hue: 270, hueSpeed: 0.15, maxOpacity: 0.18 },
-        { x: canvas.width * 0.8, y: canvas.height * 0.7, vx: -0.18, vy: 0.11, radius: baseScale * 0.85, hue: 210, hueSpeed: 0.12, maxOpacity: 0.15 },
-        { x: canvas.width * 0.5, y: canvas.height * 0.4, vx: 0.13, vy: -0.18, radius: baseScale * 0.55, hue: 330, hueSpeed: 0.20, maxOpacity: 0.13 }
-    ];
-}
-
-function drawSpace() {
-    if (!isHeroVisible || canvas.width === 0 || canvas.height === 0) {
-        requestAnimationFrame(drawSpace);
-        return;
-    }
-
-    mouse.x += (mouse.targetX - mouse.x) * 0.08;
-    mouse.y += (mouse.targetY - mouse.y) * 0.08;
-   
-    const lastScrollCurrent = scroll.current;
-    scroll.current += (scroll.target - scroll.current) * 0.1;
-    scroll.speed = Math.abs(scroll.current - lastScrollCurrent);
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.globalCompositeOperation = 'screen';
-   
-    const nebulaScrollY = scroll.current * 0.04;
-
-    // RENDER DE NEBULOSAS
-    nebulas.forEach(nebula => {
-        nebula.x += nebula.vx; nebula.y += nebula.vy;
-        if (nebula.x < -nebula.radius/3 || nebula.x > canvas.width + nebula.radius/3) nebula.vx *= -1;
-        if (nebula.y < -nebula.radius/3 || nebula.y > canvas.height + nebula.radius/3) nebula.vy *= -1;
-        nebula.hue = (nebula.hue + nebula.hueSpeed) % 360;
-
-        let gradient = ctx.createRadialGradient(nebula.x, nebula.y - nebulaScrollY, 0, nebula.x, nebula.y - nebulaScrollY, nebula.radius);
-        gradient.addColorStop(0, `hsla(${nebula.hue}, 85%, 60%, ${nebula.maxOpacity})`);
-        gradient.addColorStop(0.3, `hsla(${nebula.hue}, 80%, 55%, ${nebula.maxOpacity * 0.4})`);
-        gradient.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    });
-
-    // RENDER DE ESTRELLA FUGAZ
-    if (shootingStar.active) {
-        shootingStar.x += shootingStar.dx; shootingStar.y += shootingStar.dy;
-        shootingStar.opacity -= 0.02;
-        if (shootingStar.opacity <= 0 || shootingStar.x > canvas.width || shootingStar.y > canvas.height) {
-            shootingStar.active = false;
-        } else {
-            ctx.beginPath();
-            let travelTime = shootingStar.length / shootingStar.speed;
-            let starGrad = ctx.createLinearGradient(
-                shootingStar.x, shootingStar.y,
-                shootingStar.x - shootingStar.dx * travelTime,
-                shootingStar.y - shootingStar.dy * travelTime
-            );
-            starGrad.addColorStop(0, `rgba(255, 255, 255, ${shootingStar.opacity})`);
-            starGrad.addColorStop(0.2, `rgba(176, 130, 199, ${shootingStar.opacity * 0.6})`);
-            starGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            ctx.strokeStyle = starGrad; ctx.lineWidth = 2;
-            ctx.moveTo(shootingStar.x, shootingStar.y);
-            ctx.lineTo(shootingStar.x - shootingStar.dx * travelTime, shootingStar.y - shootingStar.dy * travelTime);
-            ctx.stroke();
-        }
-    }
-
-    // ==========================================================================
-    // FASE 1: PROCESAMIENTO Y AGRUPAMIENTO DE ESTRELLAS COMUNES
-    // ==========================================================================
-    ctx.beginPath();
-    stars.forEach(star => {
-        star.opacity += star.speed * star.factor;
-        if(star.opacity >= star.baseOpacity || star.opacity <= 0.05) star.factor *= -1;
-
-        if (star.isLucero) return; // Saltamos luceros para que no limpien este trazado global
-
-        let starY = star.y;
-        let starX = star.x;
-
-        const dx = mouse.x - starX; 
-        const dy = mouse.y - starY;
-        const distSq = dx * dx + dy * dy; // Evitamos Math.sqrt repetitivos para optimizar escritorio
+        let scroll = { current: 0, target: 0, speed: 0 };
         
-        if (distSq < 48400) { // 220 * 220
-            const distance = Math.sqrt(distSq);
-            if (distance > 0) {
-                const force = (220 - distance) / 220;
-                starX -= (dx / distance) * force * 28; 
-                starY -= (dy / distance) * force * 28;
+        // OPTIMIZACIÓN: Variable para controlar la ejecución del Canvas secundario
+        let isAlternateCanvasVisible = false;
+
+        const projectsData = [
+            {
+                tag: "CASOS DE ÉXITO • 01",
+                title: "Codipan",
+                desc: "Diseño web y UX/UI, implementación de catalogos de productos y desarrollo de marca.",
+                link: "https://www.codipan.cl/"
+            },
+            {
+                tag: "DISEÑO WEB • 02",
+                title: "Portal Bioma",
+                desc: "Directorio local consciente con arquitectura responsiva moderna. Integración completa de mapas interactivos de Valdivia",
+                link: "https://ricardose14.github.io/Biomapp-"
+            },
+            {
+                tag: "E-COMMERCE • 03",
+                title: "Animall Store",
+                desc: "Logística y pasarelas de pago integradas con calculadoras dinámicas y un sistema fluido de envíos automatizados.",
+                link: "https://animallstore.cl/"
+            },
+            {
+                tag: "AGILE METHOD • 04",
+                title: "Ambiental",
+                desc: "Implementación de metodologías ágiles en el desarrollo de web y creación de sitio.",
+                link: "https://ambientalltda.cl/"
             }
-        }
+        ];
 
-        ctx.moveTo(starX + star.radius, starY);
-        ctx.arc(starX, starY, star.radius, 0, TWO_PI);
-    });
-    ctx.fillStyle = 'rgba(245, 245, 255, 0.55)';
-    ctx.fill();
+        let currentAngleOffset = Math.PI; 
+        let lastFocusedIndex = -1;
+        let orbitExpansionFactor = 0; 
 
-    // ==========================================================================
-    // FASE 2: RENDERIZADO INDIVIDUAL DE LUCEROS CON GRANDES AURAS
-    // ==========================================================================
-    stars.forEach(star => {
-        if (!star.isLucero) return;
+        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+        gsap.ticker.lagSmoothing(false);
 
-        let starY = star.y;
-        let starX = star.x;
+        window.addEventListener("load", () => {
+            window.scrollTo(0, 0);
+            resizeCanvas();
+            drawSpace();
+            setupShootingStarTimer();
 
-        const dx = mouse.x - starX; 
-        const dy = mouse.y - starY;
-        const distSq = dx * dx + dy * dy;
-        
-        if (distSq < 48400) {
-            const distance = Math.sqrt(distSq);
-            if (distance > 0) {
-                const force = (220 - distance) / 220;
-                starX -= (dx / distance) * force * 28; 
-                starY -= (dy / distance) * force * 28;
-            }
-        }
+            const introTl = gsap.timeline({
+                onComplete: () => {
+                    initScrollTriggers();
+                }
+            });
+            introTl.to('header', { opacity: 1, duration: 1 }) 
+                   .to('.hero-text-container h1', { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6")
+                   .to('.hero-text-container p', { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, "-=0.7")
+                   .to('.triangle-wrapper', { opacity: 1, scale: 1, duration: 1.2, ease: "power4.out" }, "-=0.8");
+            
+            gsap.to('.triangle-container', { y: "+=12", rotationY: "+=4", duration: 4.5, ease: "sine.inOut", repeat: -1, yoyo: true });
+            gsap.to('.geometry-glow', { scale: 1.15, opacity: 0.3, duration: 3.5, ease: "sine.inOut", repeat: -1, yoyo: true });
+            gsap.to('.triangle-container', { 
+                filter: "drop-shadow(0 0 25px rgba(210, 183, 229, 0.75)) drop-shadow(0 0 45px rgba(138, 43, 226, 0.5))", 
+                duration: 3, 
+                repeat: -1, 
+                yoyo: true, 
+                ease: "sine.inOut" 
+            });
+            gsap.to('#services-penrose', { rotation: 360, duration: 14, repeat: -1, ease: "none" });
+            gsap.to('#services-astronaut', { y: "-=15", duration: 5, repeat: -1, yoyo: true, ease: "sine.inOut" });
+            gsap.to(['#rocket-on', '#rocket-off'], { y: "+=12", duration: 5, ease: "sine.inOut", repeat: -1, yoyo: true });
+            gsap.to('#orbit-asteroid .orbit-asteroid-inner', { y: "-=15", rotation: "-=8", duration: 6, ease: "sine.inOut", repeat: -1, yoyo: true });
+            
+            window.addEventListener('mousemove', (e) => {
+                const moveX = (e.clientX - window.innerWidth / 2);
+                const moveY = (e.clientY - window.innerHeight / 2);
+                gsap.to('#geometry-mouse-node', { x: moveX * 0.018, y: moveY * 0.018, duration: 1.3, ease: "power2.out", overwrite: "auto" });
+                gsap.to('.hero-satellite-webp', { x: moveX * 0.02, y: moveY * 0.02, duration: 2, ease: "power1.out", overwrite: "auto" });
+                gsap.to('.hero-astronaut-webp', { x: moveX * -0.03, y: moveY * -0.03, duration: 1.8, ease: "power1.out", overwrite: "auto" });
+            });
 
-        ctx.save();
-        ctx.shadowBlur = star.radius * 35;
-        ctx.shadowColor = `rgba(186, 140, 255, ${Math.max(0.35, star.opacity)})`;
-        
-        let glowGrad = ctx.createRadialGradient(starX, starY, 0, starX, starY, star.radius * 6);
-        glowGrad.addColorStop(0, `rgba(255, 255, 255, ${Math.max(0.2, star.opacity)})`);
-        glowGrad.addColorStop(0.3, `rgba(160, 100, 255, ${Math.max(0.1, star.opacity * 0.6)})`);
-        glowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        
-        ctx.beginPath();
-        ctx.arc(starX, starY, star.radius * 3, 0, TWO_PI);
-        ctx.fillStyle = glowGrad;
-        ctx.fill();
-
-        ctx.shadowBlur = 0;
-        ctx.beginPath();
-        ctx.arc(starX, starY, star.radius, 0, TWO_PI);
-        ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.4, star.opacity)})`;
-        ctx.fill();
-        ctx.restore();
-    });
-
-    requestAnimationFrame(drawSpace);
-}
-
-function launchShootingStar() {
-    if (shootingStar.active || !isHeroVisible) return;
-    shootingStar.x = Math.random() * canvas.width * 0.7;
-    shootingStar.y = Math.random() * canvas.height * 0.4;
-    shootingStar.speed = Math.random() * 15 + 15;
-    shootingStar.length = Math.random() * 80 + 60;
-    const angle = Math.PI / 4 + (Math.random() * 0.2 - 0.1);
-    shootingStar.dx = Math.cos(angle) * shootingStar.speed;
-    shootingStar.dy = Math.sin(angle) * shootingStar.speed;
-    shootingStar.opacity = 1;
-    shootingStar.active = true;
-}
-
-function setupShootingStarTimer() {
-    const randomTime = Math.random() * 5000 + 4000;
-    setTimeout(() => {
-        launchShootingStar();
-        setupShootingStarTimer();
-    }, randomTime);
-}
-
-window.addEventListener('scroll', () => {
-    scroll.target = window.scrollY;
-}, { passive: true });
-
-window.addEventListener('resize', resizeCanvas);
-
-// IntersectionObserver para congelar el motor si salimos del Hero
-if (heroSection) {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            isHeroVisible = entry.isIntersecting;
-        });
-    }, { threshold: 0.05 });
-    observer.observe(heroSection);
-}
-
-// ==========================================================================
-// 2. INTERACCIONES DE INTERFAZ Y ENGINE DE ANIMACIÓN (GSAP)
-// ==========================================================================
-gsap.registerPlugin(ScrollTrigger);
-gsap.ticker.lagSmoothing(false);
-
-document.addEventListener("DOMContentLoaded", () => {
-    // Inicialización del motor estelar una sola vez en el DOM
-    resizeCanvas();
-    drawSpace();
-    setupShootingStarTimer();
-
-    // --- TIMELINE DE INTRODUCCIÓN (ENTRY ANIMATION) ---
-    const introTl = gsap.timeline();
-    introTl.to('.logo img, .nav-center a, .header-btn', { opacity: 1, duration: 0.8, stagger: 0.04, ease: "power2.out" })
-           .to('.hero h1', { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6")
-           .to('.hero p', { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, "-=0.7")
-           .to('.hero-geometry', { opacity: 1, scale: 1, duration: 1.2, ease: "power4.out" }, "-=0.8");
-
-    // --- ANIMACIONES FLOTANTES CONTINUAS ---
-    gsap.to('.hero-geometry .main-shape', { y: "+=12", rotationY: "+=4", duration: 4.5, ease: "sine.inOut", repeat: -1, yoyo: true });
-    gsap.to('.geometry-glow', { scale: 1.15, opacity: 0.4, duration: 3.5, ease: "sine.inOut", repeat: -1, yoyo: true });
-    // Flotación independiente del satélite en el espacio profundo
-gsap.to('.hero-satellite', { 
-    y: "+=22", 
-    x: "-=8",
-    rotation: -6, 
-    duration: 6.5, 
-    repeat: -1, 
-    yoyo: true, 
-    ease: "sine.inOut" 
-});
-   
-
-   
-    // Flotación del astronauta en ingravidez
-    gsap.to('.hero-astronaut', { y: -35, rotation: 4, duration: 5.5, repeat: -1, yoyo: true, ease: "sine.inOut" });
-
-    // --- EVENTO INTEGRADO MOUSEMOVE (PARALAJE PROFUNDO) ---
-    let lastMouseX = 0;
-
-    window.addEventListener('mousemove', (e) => {
-        mouse.targetX = e.clientX;
-        mouse.targetY = e.clientY;
-
-        const moveX = (e.clientX - window.innerWidth / 2);
-        const moveY = (e.clientY - window.innerHeight / 2);
-       
-        const mouseSpeed = Math.abs(e.clientX - lastMouseX);
-        lastMouseX = e.clientX;
-
-        const skewAmount = Math.min(mouseSpeed * 0.15, 8);
-        const hueRotateAmount = Math.min(mouseSpeed * 0.6, 45);
-
-        // Capa Media: El Logo Central
-        gsap.to('.hero-geometry .main-shape', {
-            x: moveX * 0.018,
-            y: moveY * 0.018,
-            skewX: skewAmount * (moveX > 0 ? 1 : -1),
-            filter: `hue-rotate(${hueRotateAmount}deg) drop-shadow(0px 0px 15px rgba(168, 85, 247, 0.4))`,
-            duration: 1.3,
-            ease: "power2.out",
-            overwrite: "auto"
-        });
-       
-        // Retorno elástico del Logo
-        gsap.to('.hero-geometry .main-shape', {
-            skewX: 0,
-            filter: "hue-rotate(0deg) drop-shadow(0px 0px 0px rgba(0,0,0,0))",
-            duration: 0.8,
-            delay: 0.1,
-            ease: "power1.out",
-            overwrite: "none"
-        });
-
-        // Capa Cercana: El Astronauta
-        gsap.to('.hero-astronaut', {
-            x: moveX * 0.045,
-            y: moveY * 0.045,
-            duration: 1.5,
-            ease: "power2.out"
-        });
-    });
-
-    // --- ANIMACIONES BASADAS EN SCROLL (SCROLLTRIGGER HERO) ---
-    gsap.timeline({
-        scrollTrigger: {
-            trigger: '.hero',
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 1,
-            invalidateOnRefresh: true
-        }
-    })
-    .to('.hero-geometry', {
-        y: -80,        
-        scale: 0.85,    
-        opacity: 0.4,  
-        ease: "none"
-    });
-
-    // --- SECCIÓN PORTFOLIO HORIZONTAL SINCRO ---
-    const portfolioHorizontal = document.querySelector('.portfolio-horizontal');
-   
-    if (portfolioHorizontal) {
-        const horizontalTween = gsap.to(portfolioHorizontal, {
-            x: () => -(portfolioHorizontal.scrollWidth - window.innerWidth),
-            ease: "none",
-            scrollTrigger: {
-                trigger: "#portfolio",
-                pin: true,
-                scrub: 1,
-                start: "top top",
-                end: () => "+=" + portfolioHorizontal.scrollWidth,
-                invalidateOnRefresh: true
-            }
-        });
-
-        document.querySelectorAll('.portfolio-item').forEach(item => {
-            const screen = item.querySelector('.project-screen');
-            const floatPng = item.querySelector('.project-floating-png');
-            const glowBg = item.querySelector('.project-glow-bg');
-
-            if (screen) {
-                gsap.fromTo(screen,
-                    { rotationY: -18, rotationX: 6 },
-                    {
-                        rotationY: 12, rotationX: -4,
-                        scrollTrigger: {
-                            trigger: item,
-                            containerAnimation: horizontalTween,
-                            start: "left right",
-                            end: "right left",
-                            scrub: true
-                        }
+            document.querySelectorAll('.orbit-node').forEach(node => {
+                node.addEventListener('click', () => {
+                    const index = parseInt(node.getAttribute('data-index'));
+                    const scrollTriggerInstance = ScrollTrigger.getById("mainScroll");
+                    if (scrollTriggerInstance && scrollTriggerInstance.animation) {
+                        const timeline = scrollTriggerInstance.animation;
+                        const labelProgress = timeline.labels[`project-${index}`] / timeline.totalDuration();
+                        const targetScroll = scrollTriggerInstance.start + (scrollTriggerInstance.end - scrollTriggerInstance.start) * labelProgress;
+                        gsap.to(window, { scrollTo: targetScroll, duration: 1.5, ease: "power3.out" });
                     }
-                );
-            }
-
-            if(floatPng) {
-                gsap.fromTo(floatPng,
-                    { x: -35, scale: 0.96 },
-                    {
-                        x: 45, scale: 1.04,
-                        scrollTrigger: {
-                            trigger: item,
-                            containerAnimation: horizontalTween,
-                            start: "left right",
-                            end: "right left",
-                            scrub: true
-                        }
-                    }
-                );
-            }
-
-            if(glowBg) {
-                gsap.to(glowBg, {
-                    y: "+=25", scale: 1.08, duration: 5,
-                    repeat: -1, yoyo: true, ease: "sine.inOut"
                 });
+            });
+        });
+
+        function positionOrbitNodes() {
+            const nodes = document.querySelectorAll('.orbit-node');
+            const container = document.getElementById('orbit-ring');
+            const moon = document.getElementById('main-moon');
+            const portfolioSec = document.getElementById('portfolio');
+            if (!container || !moon) return;
+
+            if (portfolioSec) {
+                if (orbitExpansionFactor < 0.95) {
+                    portfolioSec.style.zIndex = "7";
+                } else {
+                    portfolioSec.style.zIndex = "9";
+                }
             }
-        });
-    }
 
-    // --- EFECTO SPOTLIGHT INTERACTIVO EN TARJETAS ---
-    const cards = document.querySelectorAll('.cosmic-card');
-    cards.forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-            card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-        });
-    });
-});
+            const rx = (container.offsetWidth / 2) * orbitExpansionFactor;
+            const ry = (container.offsetHeight / 2) * orbitExpansionFactor;
 
-// ==========================================================================
-// 3. SISTEMA DE CUERDA DE FÍSICA FLUIDA AVANZADA (CURVAS CÚBICAS)
-// ==========================================================================
-const ropePath = document.getElementById('space-rope');
-const galaxyContainer = document.querySelector('.hero-geometry');
-const astronautElement = document.querySelector('.hero-astronaut');
+            const containerRect = container.getBoundingClientRect();
+            const moonRect = moon.getBoundingClientRect();
+            const moonCenterX = (moonRect.left + moonRect.width / 2) - (containerRect.left + containerRect.width / 2);
+            const moonCenterY = (moonRect.top + moonRect.height / 2) - (containerRect.top + containerRect.height / 2);
 
-let waveTimeline = 0;
+            nodes.forEach((node, idx) => {
+                const index = parseInt(node.getAttribute('data-index'));
+                const angle = currentAngleOffset + (index * (Math.PI / 2)); 
 
-function updateRope() {
-    if (!ropePath || !galaxyContainer || !astronautElement) return;
+                const targetX = rx * Math.cos(angle);
+                const targetY = ry * Math.sin(angle);
 
-    const rectGalaxy = galaxyContainer.getBoundingClientRect();
-    const rectAstronaut = astronautElement.getBoundingClientRect();
-    const rectHero = document.querySelector('.hero').getBoundingClientRect();
+                const rotRad = -15 * (Math.PI / 180);
+                let finalX = targetX * Math.cos(rotRad) - targetY * Math.sin(rotRad);
+                let finalY = targetX * Math.sin(rotRad) + targetY * Math.cos(rotRad);
 
-    const startX = (rectGalaxy.left + rectGalaxy.width / 2) - rectHero.left;
-    const startY = (rectGalaxy.top + rectGalaxy.height * 0.65) - rectHero.top;
+                finalX = gsap.utils.interpolate(moonCenterX, finalX, orbitExpansionFactor);
+                finalY = gsap.utils.interpolate(moonCenterY, finalY, orbitExpansionFactor);
 
-    const endX = (rectAstronaut.left + rectAstronaut.width * 0.3) - rectHero.left;
-    const endY = (rectAstronaut.top + rectAstronaut.height * 0.4) - rectHero.top;
+                const rawAngleNorm = (angle % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+                let focusFactor = Math.cos(rawAngleNorm - Math.PI);
+                focusFactor = (focusFactor + 1) / 2; 
 
-    waveTimeline += 0.015;
+                const scale = gsap.utils.mapRange(0, 1, 0.45, 1.05, focusFactor) * orbitExpansionFactor;
+                const zIndexBase = Math.round(gsap.utils.mapRange(0, 1, 1, 10, focusFactor));
 
-    const dx = endX - startX;
-    const dy = endY - startY;
-   
-    const wave1X = Math.sin(waveTimeline) * 12;
-    const wave1Y = Math.cos(waveTimeline * 0.8) * 15;
-   
-    const wave2X = Math.sin(waveTimeline * 2.2 + 1) * 6;
-    const wave2Y = Math.cos(waveTimeline * 1.9) * 4;
+                const finalZIndex = orbitExpansionFactor < 0.98 ? 2 : zIndexBase;
 
-    const currentWaveX = wave1X + wave2X;
-    const currentWaveY = wave1Y + wave2Y;
+                gsap.set(node, { 
+                    x: finalX, 
+                    y: finalY, 
+                    scale: scale, 
+                    zIndex: finalZIndex,
+                    opacity: orbitExpansionFactor > 0.15 ? 1 : 0, 
+                    overwrite: "auto" 
+                });
 
-    const control1X = startX + (dx * 0.35) + currentWaveX;
-    const control1Y = startY + (dy * 0.35) + 100 + currentWaveY;
+                if (focusFactor > 0.85 && lastFocusedIndex !== index && orbitExpansionFactor > 0.8) {
+                    lastFocusedIndex = index;
+                    document.querySelectorAll('.orbit-node').forEach(n => n.classList.remove('focused'));
+                    node.classList.add('focused');
+                    updateProjectDetails(index);
+                }
+            });
+        }
 
-    const control2X = startX + (dx * 0.65) - currentWaveX;
-    const control2Y = startY + (dy * 0.65) - 60 - currentWaveY;
+        function updateProjectDetails(index) {
+            const data = projectsData[index];
+            const textElements = ["#project-tag", "#project-title", "#project-desc", "#project-link"];
+            
+            gsap.to(textElements, { 
+                opacity: 0, 
+                y: -8, 
+                duration: 0.25, 
+                stagger: 0.04, 
+                overwrite: "auto",
+                onComplete: () => {
+                    document.getElementById('project-tag').innerText = data.tag;
+                    document.getElementById('project-title').innerText = data.title;
+                    document.getElementById('project-desc').innerText = data.desc;
+                    document.getElementById('project-link').onclick = () => {
+                        window.location.href = data.link;
+                    };
+                    gsap.to(textElements, { 
+                        opacity: 1, 
+                        y: 0, 
+                        duration: 0.35, 
+                        stagger: 0.04, 
+                        ease: "power2.out", 
+                        overwrite: "auto" 
+                    });
+                }
+            });
+        }
 
-    const dAttribute = `M ${startX} ${startY} C ${control1X} ${control1Y} ${control2X} ${control2Y}, ${endX} ${endY}`;
-    ropePath.setAttribute('d', dAttribute);
+        function initScrollTriggers() {
+            const tl = gsap.timeline({
+                id: "mainScroll",
+                scrollTrigger: {
+                    trigger: "#scroll-container",
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: 3.5, 
+                    invalidateOnRefresh: true,
+                }
+            });
 
-    requestAnimationFrame(updateRope);
-}
+            tl.addLabel("hero")
+              .to("#triangle-holder", { scale: 6.5, duration: 5, ease: "power2.inOut", immediateRender: false })
+              .to("#triangle-holder", { opacity: 0, duration: 2.5, ease: "power1.in" }, "-=5")
+              .to(".hero-text-container", { opacity: 0, y: "-50px", duration: 2.5, ease: "power1.out" }, "-=5")
+              .to(".hero-satellite-webp", { x: "-75vw", y: "-75vh", rotation: -15, duration: 5, ease: "none", immediateRender: false }, "-=5")
+              .to(".hero-astronaut-webp", { x: "75vw", y: "-75vh", rotation: 10, duration: 5, ease: "none", immediateRender: false }, "-=5")
+              .to(".hero-asteroids-webp", { x: "90vw", y: "75vh", duration: 5, ease: "none", immediateRender: false }, "-=5")
+              
+              // OPTIMIZACIÓN: Control del segundo canvas para que no gaste GPU si no está visible
+              .to("#dimension-dos", { opacity: 1, duration: 2, 
+                  onStart: () => { isAlternateCanvasVisible = true; }, 
+                  onReverseComplete: () => { isAlternateCanvasVisible = false; } 
+              }, "-=1.5")
+              
+              .to("#dimension-uno", { backgroundColor: "transparent", duration: 2 }, "-=1.5")
+              .to("#hero", { opacity: 0, pointerEvents: "none", duration: 2 }, "-=1.5");
 
-// Activa el bucle de la física de la cuerda
-requestAnimationFrame(updateRope);
+            tl.addLabel("servicios")
+              .to("#services", { opacity: 1, duration: 1 })
+              .to("#services-penrose", { right: "80%", duration: 5, ease: "power2.out" }, "-=1")
+              
+              .to("#services-astronaut", { right: "4%", bottom: "15%", duration: 5, ease: "power2.out" }, "-=5")
+              
+              .to(".services-grid .service-card:nth-child(1)", { opacity: 1, filter: "grayscale(0) brightness(1)", borderColor: "rgba(30, 58, 138, 0.7)", boxShadow: "0 0 35px rgba(7, 18, 36, 0.9)", duration: 2 })
+              .to(".services-grid .service-card:nth-child(2)", { opacity: 1, filter: "grayscale(0) brightness(1)", borderColor: "rgba(30, 58, 138, 0.7)", boxShadow: "0 0 35px rgba(7, 18, 36, 0.9)", duration: 2 })
+              .to(".services-grid .service-card:nth-child(3)", { opacity: 1, filter: "grayscale(0) brightness(1)", borderColor: "rgba(30, 58, 138, 0.7)", boxShadow: "0 0 35px rgba(7, 18, 36, 0.9)", duration: 2 })
+              
+              .to(".services-left", { x: "-120vw", duration: 10, ease: "power2.in" }, "+=1")
+              
+              .to("#services-astronaut", { right: "120%", bottom: "-20%", duration: 10, ease: "power2.in", rotation: -10 }, "-=4.5")
+              .to("#services-penrose", { x: "-120vw", y: "-30vh", duration: 4, ease: "power2.in" }, "-=4.7")
+              
+              .to("#portfolio", { opacity: 1, duration: 4 }, "-=1.5")
+              .to("#main-moon", { left: "70%", top: "50%", scale: 1.1, opacity: 1, duration: 10, ease: "power2.inOut" }, "<")
+              .to("#orbit-asteroid", { left: "-85%", bottom: "-20%", duration: 10, ease: "power2.inOut" }, "<")
+              .to("#services", { pointerEvents: "none", duration: 0.1 })
+              .call(() => {
+                  lastFocusedIndex = -1;
+                  document.querySelectorAll('.orbit-node').forEach(n => n.classList.remove('focused'));
+              })
+              .to("#orbit-astronaut", { left: "-15%", top: "60%", scale: 1, rotation: -30, duration: 10, ease: "power2.out" }, "+=0.2")
+              .to("#rocket-on", { opacity: 0, duration: 3.5, ease: "power1.inOut" }, ">")
+              .to("#rocket-off", { opacity: 1, duration: 3.5, ease: "power1.inOut" }, "<")
+              .to({ factor: 0 }, {
+                  factor: 1, duration: 10, ease: "back.out(1.1)",
+                  onUpdate: function() {
+                      orbitExpansionFactor = this.targets()[0].factor;
+                      positionOrbitNodes();
+                  }
+              }, ">")
+              .to("#details-card", { opacity: 1, x: 0, pointerEvents: "all", duration: 2, ease: "power2.out" }, ">");
 
-// ==========================================================================
-// 4. MOVIMIENTO DE HUINCHA DE ASTEROIDES (SCROLL TRIGGER HORIZONTAL)
-// ==========================================================================
-gsap.to('.asteroid-belt-strip', {
-    y: "+=15",
-    duration: 5,
-    repeat: -1,
-    yoyo: true,
-    ease: "sine.inOut"
-});
+            tl.addLabel("project-0").to({ angle: Math.PI }, { angle: Math.PI / 2, duration: 6, ease: "none", onUpdate: function() { currentAngleOffset = this.targets()[0].angle; positionOrbitNodes(); } });
+            tl.addLabel("project-1").to({ angle: Math.PI / 2 }, { angle: 0, duration: 6, ease: "none", onUpdate: function() { currentAngleOffset = this.targets()[0].angle; positionOrbitNodes(); } });
+            tl.addLabel("project-2").to({ angle: 0 }, { angle: -Math.PI / 2, duration: 6, ease: "none", onUpdate: function() { currentAngleOffset = this.targets()[0].angle; positionOrbitNodes(); } });
+            tl.addLabel("project-3").to({}, { duration: 6 });
+
+            tl.addLabel("project-final-stop")
+              .to("#details-card", { opacity: 0, x: -30, pointerEvents: "none", duration: 1.5, ease: "power2.in" })
+              .to({ factor: 1 }, {
+                  factor: 0, duration: 10, ease: "power2.inOut",
+                  onUpdate: function() { orbitExpansionFactor = this.targets()[0].factor; positionOrbitNodes(); }
+              }, "-=1")
+              .to("#orbit-asteroid", { left: "-160%", bottom: "50%", duration: 8, ease: "power2.in" }, "-=2.2")
+              .to("#rocket-on", { opacity: 1, duration: 4, ease: "power1.inOut" }, "-=3.5")
+              .to("#rocket-off", { opacity: 0, duration: 4, ease: "power1.inOut" }, "<")
+              .to("#orbit-astronaut", { left: "25%", top: "22%", scale: 0.5, rotation: -30, zIndex: 10, duration: 8 }, "-=2.5")
+              .to(["#main-moon", "#orbit-astronaut"], { x: "60vw", y: "60vh", duration: 10, ease: "power2.in" }, "+=0.3")
+              .to("#portfolio", { opacity: 1, scale: 0.9, duration: 3.5 }, "-=3.5");
+
+            tl.addLabel("contacto")
+              .to("#contact", { opacity: 1, pointerEvents: "all", duration: 4 })
+              .fromTo(".earth-crust", { y: "100%", opacity: 0 }, { y: "0%", opacity: 1, duration: 6, ease: "power2.out" }, "<")
+              .fromTo(".contact-content", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 6, ease: "power3.out" }, "<")
+              
+              .to({}, { duration: 4 })
+
+              .addLabel("salida-contacto")
+              .to(".contact-content, .contact-ship", { opacity: 0, y: -50, pointerEvents: "none", duration: 3 }, "salida-contacto")
+              
+              .to(".earth-crust", { scale: 3.5, y: "10%", transformOrigin: "bottom center", duration: 8, ease: "power1.inOut" }, "salida-contacto")
+              
+              .to("#nubes-atmosfera", { y: "0vh", scale: 1.5, duration: 8, ease: "power1.inOut" }, "salida-contacto");
+
+            tl.addLabel("descenso-nubes")
+              .set("#contact", { opacity: 0 }) 
+              
+              .to("#nubes-atmosfera", { scale: 5.0, duration: 8, ease: "power1.inOut" })
+              
+              .set("#landing", { opacity: 1, pointerEvents: "all" }, "-=6")
+
+              .to("#nubes-atmosfera", { opacity: 0, scale: 8.0, filter: "blur(20px)", duration: 6, ease: "power2.inOut" }, "-=4");
+
+            tl.addLabel("landing")
+              .fromTo(".landing-scene", { y: "20vh", opacity: 0 }, { y: "0vh", opacity: 1, duration: 6, ease: "power3.out" }, "-=6")
+              .fromTo(".landing-content", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 5 }, "-=4");
+
+            ScrollTrigger.refresh();
+        }
+
+        const canvas1 = document.getElementById('starfield');
+        const ctx1 = canvas1.getContext('2d');
+        const canvas2 = document.getElementById('starfield-alternate');
+        const ctx2 = canvas2.getContext('2d');
+
+        let stars1 = [];
+        let stars2 = [];
+        let shootingStar = { x: 0, y: 0, speed: 0, length: 0, opacity: 0, active: false };
+
+        function resizeCanvas() {
+            canvas1.width = window.innerWidth;
+            canvas1.height = window.innerHeight;
+            canvas2.width = window.innerWidth;
+            canvas2.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars1 = [];
+            stars2 = [];
+            const count = Math.floor((canvas1.width * canvas1.height) / 7000);
+            for (let i = 0; i < count; i++) {
+                stars1.push({ x: Math.random() * canvas1.width, y: Math.random() * canvas1.height, radius: Math.random() * 1.1 + 0.3, speed: Math.random() * 0.02 + 0.005 });
+                stars2.push({ x: Math.random() * canvas2.width, y: Math.random() * canvas2.height, radius: Math.random() * 1.3 + 0.4, speed: Math.random() * 0.05 + 0.01 });
+            }
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('scroll', () => { scroll.target = window.scrollY; });
+
+        // OPTIMIZACIÓN: Solo renderizar Canvas 2 si está visible
+        function drawSpace() {
+            scroll.current += (scroll.target - scroll.current) * 0.08;
+            
+            // Renderizado Canvas 1
+            ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+            ctx1.beginPath();
+            stars1.forEach(star => {
+                let starY = (star.y - (scroll.current * 0.015) % canvas1.height + canvas1.height) % canvas1.height;
+                ctx1.moveTo(star.x + star.radius, starY);
+                ctx1.arc(star.x, starY, star.radius, 0, Math.PI * 2);
+            });
+            ctx1.fillStyle = 'rgba(255, 255, 255, 0.55)'; 
+            ctx1.fill();
+
+            // Renderizado Condicional Canvas 2
+            if (isAlternateCanvasVisible) {
+                ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+                ctx2.beginPath();
+                stars2.forEach(star => {
+                    let starY = (star.y - (scroll.current * 0.04) % canvas2.height + canvas2.height) % canvas2.height; 
+                    ctx2.moveTo(star.x + star.radius, starY); 
+                    ctx2.arc(star.x, starY, star.radius, 0, Math.PI*2);
+                });
+                ctx2.fillStyle = 'rgba(220, 230, 255, 0.8)'; 
+                ctx2.fill(); 
+
+                if (shootingStar.active) {
+                    ctx2.beginPath();
+                    const grad = ctx2.createLinearGradient(shootingStar.x, shootingStar.y, shootingStar.x - shootingStar.dx, shootingStar.y - shootingStar.dy);
+                    grad.addColorStop(0, `rgba(167, 139, 250, ${shootingStar.opacity})`);
+                    grad.addColorStop(1, 'rgba(167, 139, 250, 0)');
+                    ctx2.strokeStyle = grad; ctx2.lineWidth = 2;
+                    ctx2.moveTo(shootingStar.x, shootingStar.y); ctx2.lineTo(shootingStar.x - shootingStar.dx, shootingStar.y - shootingStar.dy);
+                    ctx2.stroke();
+                    shootingStar.x += shootingStar.dx * 0.6; shootingStar.y += shootingStar.dy * 0.6; shootingStar.opacity -= 0.015;
+                    if (shootingStar.opacity <= 0) shootingStar.active = false;
+                }
+            }
+            requestAnimationFrame(drawSpace);
+        }
+
+        function launchShootingStar() {
+            if (shootingStar.active) return;
+            shootingStar.x = Math.random() * canvas1.width * 0.8; shootingStar.y = Math.random() * canvas1.height * 0.5;
+            shootingStar.speed = Math.random() * 12 + 12; shootingStar.length = Math.random() * 80 + 50;
+            const angle = Math.PI / 4; shootingStar.dx = Math.cos(angle) * shootingStar.speed; shootingStar.dy = Math.sin(angle) * shootingStar.speed;
+            shootingStar.opacity = 1; shootingStar.active = true;
+        }
+
+        function setupShootingStarTimer() { 
+            setTimeout(() => { launchShootingStar(); setupShootingStarTimer(); }, Math.random() * 9000 + 4000);
+        }

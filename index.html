@@ -3,175 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espacio Psicodélico - Agencia Web</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>Espacio Sideral - Portal Interdimensional</title>
     <link rel="stylesheet" href="style.css">
-
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="javascript.js" defer></script>
-
-
-
 </head>
 <body>
 
-  
-    
-  
-<header>
-    <div class="logo">
-        <img src="logo-espacio.webp" alt="Espacio Sideral Logo">
+    <div id="scroll-container"></div>
+
+    <div class="viewport-alternate" id="dimension-dos">
+        <canvas id="starfield-alternate"></canvas>
     </div>
 
-    <input type="checkbox" id="menu-toggle" class="menu-checkbox">
-    <label for="menu-toggle" class="hamburger-lines">
-        <span class="line line1"></span>
-        <span class="line line2"></span>
-        <span class="line line3"></span>
-    </label>
+    <div class="viewport" id="dimension-uno">
+        <canvas id="starfield"></canvas>
 
-    <div class="nav-center">
-        <a href="#servicios">Servicios</a>
-        <a href="#portfolio">Portfolio</a>
-        <a href="#nosotros">Sobre Nosotros</a>
-        <a href="#contacto">Contacto</a>
-        <button class="header-btn mobile-only">Inicia tu proyecto</button>
-    </div>
-</header>
+        <div class="global-moon" id="main-moon" role="img" aria-label="Luna brillante de fondo representativa del portafolio"></div>
 
-<section class="hero">
-      <canvas id="starfield"></canvas>
-    
-<svg class="space-rope-svg">
-    <defs>
-    <linearGradient id="rope-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#a855f7" stop-opacity="0.9" /> >         <stop offset="100%" stop-color="#c3c3f3" stop-opacity="0.6" /> > </linearGradient>
-</defs>
-        <path id="space-rope" d="" />
-    </svg>
-    <h1>CONSTRUIMOS TU<br>ESPACIO EN LA RED</h1>
-    <p class="subtitulo">Desarrollamos soluciones web de alto rendimiento y diseño impecable.</p>
-    
-    <div class="hero-geometry">
-        <div class="geometry-glow"></div>
-        <img src="Geometria-sideral.webp" alt="Geometría Sideral" class="main-shape">
-        <img src="satelite.webp" class="hero-satellite" alt="Satelite Espacial">
-        
-    <img src="astronauta.webp" alt="Astronauta" class="hero-astronaut">
-    </div>
+        <header>
+            <div class="logo">
+                <img src="logo-espacio.webp" alt="Espacio Sideral Logo">
+            </div>
+            <div class="nav-center">
+                <a href="#services">Servicios</a>
+                <a href="#portfolio">Proyectos</a>
+                <a href="#contact">Contacto</a>
+                <button class="header-btn">Inicia tu proyecto</button>
+            </div>
+        </header>
 
-
-<div class="asteroid-belt-container">
-    <img src="asteroide1.webp" class="asteroid-belt-strip" alt="Cinturón de Asteroides">
-</div>
-</section>
-
-        <section id="servicios" class="services">
-            <div class="services-header">
-                <span>Ecosistema de Desarrollo</span>
-                <h2>La trinidad detrás de cada órbita digital.</h2>
+        <section class="section" id="hero">
+            <div class="floating-element hero-satellite-webp"></div>
+            <div class="floating-element hero-astronaut-webp"></div>
+            <div class="floating-element hero-asteroids-webp"></div>
+     
+            <div class="hero-text-container">
+                <h1>CONSTRUIMOS TU<br>ESPACIO EN LA RED</h1>
+                <p>Desarrollamos soluciones web de alto rendimiento y diseño impecable.</p>
             </div>
 
-            <div class="services-grid">
+            <div class="triangle-wrapper" id="triangle-holder">
+                <div class="geometry-interactive-node" id="geometry-mouse-node">
+                    <div class="geometry-glow"></div>
+                    <div class="triangle-container"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="services">
+            <div class="services-container" id="services-container">
                 
-                <div class="cosmic-card card-po">
-                    <div class="card-icon">
-                        <div class="icon-shape"></div>
-                        <div class="icon-center"></div>
+                <div class="services-left">
+                    <h2 class="services-title">La trinidad detrás de cada órbita digital.</h2>
+                    
+                    <div class="services-grid">
+                        <div class="service-card">
+                            <div class="card-dot"></div>
+                            <h3>Estrategia & Agile</h3>
+                            <p>Planificación milimétrica bajo metodologías ágiles. Trazo la trayectoria del proyecto como Product Owner para garantizar un desarrollo sin fricciones.</p>
+                        </div>
+                        <div class="service-card">
+                            <div class="card-dot"></div>
+                            <h3>Ingeniería de Código</h3>
+                            <p>Arquitectura web robusta y optimizada a nivel de rendimiento gráfico. Transformo algoritmos complejos en interfaces fluidas de alta gama.</p>
+                        </div>
+                        <div class="service-card">
+                            <div class="card-dot"></div>
+                            <h3>Identidad Visual</h3>
+                            <p>Diseño gráfico inmersivo con alma conceptual. Creo la estética y la armonía visual logrando composiciones memorables.</p>
+                        </div>
                     </div>
-                    <h3>Estrategia & Agile</h3>
-                    <p>Planificación milimétrica bajo metodologías ágiles. Trazo la trayectoria del proyecto como Product Owner para garantizar un desarrollo sin fricciones, coordinado y alineado con tus objetivos comerciales.</p>
+                </div>
+                
+                <div class="services-triangle-anchor" id="services-penrose"></div>
+                <div class="services-astronaut" id="services-astronaut"></div>
+            </div>
+        </section>
+
+        <section class="section" id="portfolio">
+            <div class="portfolio-orbit-wrapper">
+                
+                <div class="project-details-card" id="details-card">
+                    <p class="project-meta" id="project-tag">CASOS DE ÉXITO • 01</p>
+                    <h2 class="project-title" id="project-title">Cargando...</h2>
+                    <p class="project-desc" id="project-desc">Explorando las frecuencias interdimensionales...</p>
+                    <button class="project-btn" id="project-link">VER PROYECTO</button>
                 </div>
 
-                <div class="cosmic-card card-dev">
-                    <div class="card-icon">
-                        <div class="icon-shape" style="border-radius: 35% 65% 70% 30% / 50%;"></div>
-                        <div class="icon-center"></div>
+                <div class="orbit-visual-container">
+                    <div class="gravity-ring ring-main" id="orbit-ring"></div>
+                    <div class="gravity-ring ring-secondary"></div>
+                 
+                    <div class="orbit-astronaut-bg" id="orbit-astronaut">
+                        <div class="rocket-layer on" id="rocket-on"></div>
+                        <div class="rocket-layer off" id="rocket-off"></div>
                     </div>
-                    <h3>Ingeniería de Código</h3>
-                    <p>Arquitectura web robusta y optimizada a nivel de rendimiento gráfico. Transformo algoritmos complejos y lógicas de negocio en interfaces fluidas de alta gama con un estándar de código impecable.</p>
-                </div>
+                    <div class="orbit-asteroid-left" id="orbit-asteroid">
+                        <div class="orbit-asteroid-inner"></div>
+                    </div>
 
-                <div class="cosmic-card card-design">
-                    <div class="card-icon">
-                        <div class="icon-shape" style="transform: scale(0.9) rotate(45deg);"></div>
-                        <div class="icon-center"></div>
+                    <div class="orbit-node" data-index="0" data-title="[ 01. CODIPAN ]">
+                        <div class="orbit-triangle-mesh"></div>
                     </div>
-                    <h3>Identidad Visual</h3>
-                    <p>Diseño gráfico inmersivo con alma conceptual. Creo la estética, el tratamiento cromático y la armonía visual de la interfaz, logrando composiciones memorables que desafían la lógica convencional.</p>
+                    <div class="orbit-node" data-index="1" data-title="[ 02. PORTAL BIOMA ]">
+                        <div class="orbit-triangle-mesh"></div>
+                    </div>
+                    <div class="orbit-node" data-index="2" data-title="[ 03. ANIMALL STORE ]">
+                        <div class="orbit-triangle-mesh"></div>
+                    </div>
+                    <div class="orbit-node" data-index="3" data-title="[ 04. AMBIENTAL ]">
+                        <div class="orbit-triangle-mesh"></div>
+                    </div>
                 </div>
 
             </div>
         </section>
 
-<section id="portfolio" class="portfolio-pin-container">
-    <div class="portfolio-horizontal">
-        
-        <div class="portfolio-intro">
-            <span>Casos de Estudio</span>
-            <h2>Galaxia de<br>Proyectos</h2>
-        </div>
+        <section class="section" id="contact">
+            <div class="earth-crust"></div>
+            <div class="contact-ship"></div>
+  
+            <div class="contact-content">
+                <h2>¿LISTO PARA TU ÓRBITA?</h2>
+                <form class="contact-form" id="contact-form">
+                    <input type="text" placeholder="Nombre" required>
+                    <input type="email" placeholder="Email" required>
+                    <textarea placeholder="Mensaje" rows="4" required></textarea>
+                    <button type="button" class="submit-btn">LANZAR MENSAJE</button>
+                </form>
+            </div>
+        </section>
 
-        <div class="portfolio-item item-even">
-            <div class="project-info">
-                <span class="num">// 01 . NUTRICIÓN EVOLUTIVA</span>
-                <h3>AnimAll Store</h3>
-                <p>E-commerce de alta conversión dedicado a la alimentación natural BARF. Desarrollamos una arquitectura robusta, un sistema integrado de cálculo de porciones personalizadas y una interfaz con alto impacto visual y coherencia de marca.</p>
-                <div class="project-tags">
-                    <span>WordPress</span>
-                    <span>WooCommerce</span>
-                    <span>PHP Custom</span>
-                    <span>Optimización de Carga</span>
-                </div>
-            </div>
-            <div class="project-visual">
-                <div class="project-glow-bg" style="background: radial-gradient(circle, #7c3aed 0%, transparent 70%);"></div>
-                <div class="project-screen" style="background: rgba(15, 12, 30, 0.6); border-color: rgba(124, 58, 237, 0.3);">
-                    <img src="proyecto1-screenshot.webp" alt="AnimAll Nutrición Sección" style="object-fit: cover;">
-                </div>
-                <div class="project-floating-png p-float-2">
-                    <img src="Animall-Phone.webp" alt="Silueta interactiva AnimAll">
-                </div>
-            </div>
-        </div>
+        <!-- NUBES FUERA DEL FLUJO DE CONTACT/LANDING -->
+        <div id="nubes-atmosfera"></div>
 
-        <div class="portfolio-item item-odd">
-            <div class="project-info">
-                <span class="num">// 02 . TRÁNSITO DIGITAL</span>
-                <h3>E-Commerce Sideral</h3>
-                <p>Diseño y arquitectura completa para plataformas de alta conversión. Optimizamos la carga, pulimos la interfaz y creamos experiencias fluidas adaptadas a modelos de negocio exigentes.</p>
-                <div class="project-tags">
-                    <span>WordPress</span>
-                    <span>Elementor</span>
-                    <span>PHP</span>
-                    <span>UX Avanzada</span>
+        <section class="section" id="landing">
+            <div class="landing-content">
+                <p>DONDE LAS IDEAS TOMAN TIERRA.</p>
+            </div>
+
+            <div class="landing-scene">
+                <div class="water-pond">
+                    <div class="landing-triangle-wrapper">
+                        <div class="landing-triangle"></div>
+                    </div>
+                    <div class="landing-reflection"></div>
                 </div>
             </div>
-            <div class="project-visual">
-                <div class="project-glow-bg" style="background: radial-gradient(circle, #ec4899 0%, transparent 70%);"></div>
-                <div class="project-screen" style="background: rgba(20, 10, 25, 0.6); border-color: rgba(236, 72, 153, 0.3); transform: perspective(1000px) rotateY(15deg) rotateX(5deg);">
-                    <img src="proyecto2-screenshot.webp" alt="Preview Proyecto 2" style="object-fit: cover;">
+
+            <footer class="minimal-footer">
+                <div class="social-links">
+                    <a href="#">Instagram</a>
+                    <a href="#">LinkedIn</a>
+                    <a href="#">Behance</a>
                 </div>
-                <div class="project-floating-png p-float-1">
-                    <img src="interfaz-movil-mockup.png" alt="Capa flotante interactiva móvil">
-                </div>
-            </div>
-        </div>
+                <p>&copy; 2026 Espacio Sideral. Todos los derechos reservados.</p>
+            </footer>
+        </section>
 
     </div>
-</section>
 
-        <footer class="ui-footer">
-            <p>Espacio Sideral • Interacción Avanzada & Psicodelia Líquida</p>
-            <div class="sparkle-icon"></div>
-        </footer>
-
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    <script src="javascript.js" defer></script>
 
 </body>
 </html>

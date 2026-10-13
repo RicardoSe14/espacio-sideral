@@ -1,844 +1,962 @@
-
-    /* ==========================================================================
-       1. RESET & BASE STYLES (CON TU TIPOGRAFÍA ORIGINAL RECUPERADA)
-       ========================================================================== */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Urbanist', sans-serif; /* <--- Tu fuente original devuelta a su lugar */
-    }
-
-    body {
-        background-color: #020206; 
-        color: #ffffff;
-        overflow-x: hidden;
-        min-height: 250vh; 
-    }
-
-    /* LIENZO ESPACIAL GLOBAL */
-#starfield {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1; /* Asegúrate de que esté un paso por encima del fondo del padre */
-    pointer-events: none;
-    
-    /* NUEVO: Hace que los colores del canvas sumen luz a la imagen de fondo */
-    mix-blend-mode: screen; 
-    object-fit: fill; /* Clave para que el re-escalado por hardware cubra toda la sección */
-    will-change: transform;
-    transform: translateZ(0);
-}
-
-
-       /* ==========================================================================
-       2. HEADER & LOGO (RESPONSIVO Y ADAPTATIVO ENTRE 1366PX Y 1080P)
-       ========================================================================== */
-/* ==========================================================================
-   ESTILOS BASE DEL HEADER (ESCRITORIO)
-   ========================================================================== */
-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 80px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 4%;
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    z-index: 1000;
-    box-sizing: border-box;
-}
-
-.logo img {
-    height: 45px;
-    width: auto;
-    display: block;
-}
-
-.nav-center {
-    display: flex;
-    gap: 30px;
-}
-
-.nav-center a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
-}
-
-/* Control de visibilidad de botones */
-.menu-checkbox, .hamburger-lines, .mobile-only {
-    display: none;
-}
-
-.header-btn {
-    padding: 10px 20px;
-    background: #a855f7;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: transform 0.2s, background 0.3s;
-}
-
-/* ==========================================================================
-   RESPONSIVO: ADAPTACIÓN PARA MÓVILES (MENOS DE 768px)
-   ========================================================================== */
-@media (max-width: 767px) {
-    /* Ocultamos el botón principal de escritorio */
-    .desktop-only {
-        display: none;
-    }
-
-    /* Activamos el botón para móviles dentro del menú */
-    .mobile-only {
-        display: block;
-        margin-top: 20px;
-        width: 80%;
-    }
-
-    /* Mostrar las líneas de la hamburguesa */
-    .hamburger-lines {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        width: 30px;
-        height: 22px;
-        cursor: pointer;
-        z-index: 1002;
-    }
-
-    .hamburger-lines .line {
-        display: block;
-        height: 3px;
-        width: 100%;
-        border-radius: 10px;
-        background: #fff;
-        transition: transform 0.3s ease-in-out, opacity 0.2s;
-    }
-
-    /* Transformamos el Nav en una cortina lateral colgada de la derecha */
-    .nav-center {
-        position: fixed;
-        top: 0;
-        right: -100%; /* Escondido por completo a la derecha */
-        width: 280px;
-        height: 100vh;
-        background: rgba(10, 5, 20, 0.95); /* Color espacial oscuro denso */
-        backdrop-filter: blur(15px);
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 25px;
-        padding: 50px;
-        transition: right 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
-        z-index: 1001;
-        box-sizing: border-box;
-        box-shadow: -10px 0px 30px rgba(0, 0, 0, 0.5);
-    }
-
-    .nav-center a {
-        font-size: 1.2rem;
-    }
-
-    /* TRUCO CSS: Cuando el checkbox esté activo, despliega el menú */
-    .menu-checkbox:checked ~ .nav-center {
-        right: 0; /* Entra suavemente a la pantalla */
-    }
-
-    /* Animación del botón hamburguesa transformándose en una 'X' al abrirse */
-    .menu-checkbox:checked ~ .hamburger-lines .line1 {
-        transform: translateY(9px) rotate(45deg);
-    }
-
-    .menu-checkbox:checked ~ .hamburger-lines .line2 {
-        opacity: 0;
-    }
-
-    .menu-checkbox:checked ~ .hamburger-lines .line3 {
-        transform: translateY(-10px) rotate(-45deg);
-    }
-}
-
-    .nav-center a {
-        color: #8a8b9c;
-        text-decoration: none;
-        /* La fuente escala de 13px (en 1366px) hasta 15.5px (en 1080p) */
-        font-size: clamp(10px, 1.2vw, 18px);
-        font-weight: 600;
-        /* El espacio entre enlaces crece de forma elástica con el ancho de pantalla (vw) */
-        margin: 0 clamp(16px, 1.5vw, 24px);
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        transition: color 0.3s, transform 0.3s;
-    }
-    
-    .nav-center a:hover { 
-        color: #fff; 
-    }
-
-    .header-btn {
-        background: rgba(255, 255, 255, 0.02);
-        color: #d1d2dc;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        /* El padding interno del botón se adapta proporcionalmente */
-        padding: clamp(10px, 1.2vh, 14px) clamp(20px, 1.8vw, 28px);
-        border-radius: 20px;
-        /* El texto del botón acompaña el tamaño del menú */
-        font-size: clamp(10px, 1.2vw, 18px);
-        font-weight: 600;
-        letter-spacing: 1px;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-    
-    .header-btn:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
-        border-color: rgba(255, 255, 255, 0.2);
-    }
-
-
-/* ==========================================================================
-   3. HERO SECTION & GEOMETRÍA (100% RESPONSIVO Y ELÁSTICO - ENVIADO A GPU)
-   ========================================================================== */
-.hero {
-    height: 130vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; 
-    align-items: center;
-    text-align: center;
-    position: relative;
-    overflow: hidden; 
-    perspective: 1000px;
-    background-position: top  left;
-    background-size: 60%;
-    background-repeat: no-repeat;
-background-image: url('fondo4.webp'); /* Fondo espacial con nebulosas y estrellas */
-    /* OPTIMIZACIÓN GPU: Aísla el contexto de renderizado del contenedor principal */
-    backface-visibility: hidden;
-    transform: translate3d(0, 0, 0);
-}
-
-@media screen and (max-width: 768px) {
-    .hero {
-      height: 110vh;
-          background-position: top 6% left;
-    background-size: 100%;
-    background-repeat: no-repeat;
-background-image: url('fondo4.webp'); /* Fondo espacial con nebulosas y estrellas */
-    /* OPTIMIZACIÓN GPU: Aísla el contexto de renderizado del contenedor principal */
-    }
-}
-
-.hero h1 {
-    font-size: clamp(2.0rem, 4.8vw, 5.2rem); 
-    font-weight: 800;
-    letter-spacing: -1px;
-    line-height: 1.15;
-    margin-bottom: clamp(12px, 2vh, 20px); 
-    max-width: 90%; 
-    width: 1100px;
-    background: linear-gradient(180deg, #c3c3f3 0%, #a881b8 50%, #6d3e7a 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    opacity: 0;
-    transform: translateY(30px);
-    z-index: 2;
-
-    /* OPTIMIZACIÓN GPU: Suaviza la animación de entrada inicial */
-    will-change: transform, opacity;
-}
-
-.hero p {
-    font-size: clamp(1rem, 1.3vw, 1.4rem); 
-    color: #e4e5f8;
-    max-width: 90%;
-    width: 700px; 
-    margin-bottom: clamp(30px, 5vh, 60px); 
-    line-height: 1.6;
-    font-weight: 400;
-    opacity: 0;
-    transform: translateY(30px);
-    z-index: 2;
-
-    /* OPTIMIZACIÓN GPU */
-    will-change: transform, opacity;
-}
-
-/* --- NUEVO ELEMENTO: SATÉLITE EN INGRAVIDEZ (GPU) --- */
-.hero-satellite {
-    position: absolute;
-    
-    /* Lo posicionamos arriba y desbordado hacia la izquierda del triángulo */
-    top: -30%;
-    left: -90%;
-    
-    /* Tamaño dinámico: máx 180px en pantallas enormes, escala por anchura visual (vw) */
-    width: clamp(180px, 15vw, 280px);
-    height: auto;
-    z-index: 3; /* Por encima de las nubes y el brillo */
-    pointer-events: none; /* Evita interferir con los clics del usuario */
-    
-    /* Filtro sutil para acoplarlo con el sombreado del espacio */
-    /* Modifica el filter que ya tienes en .hero-satellite */
-filter: drop-shadow(-5px 10px 15px rgba(0, 0, 0, 0.7)) 
-        drop-shadow(8px -8px 20px rgba(84, 41, 123, 0.25)); /* Brillo morado sutil que viene del triángulo */
-    
-    /* Encriptamos directo a la tarjeta de video */
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-}
-
-/* Ajustes mínimos para móviles compactos */
-@media (max-width: 767px) {
-    .hero-satellite {
-        top: 50%;
-        left: -35%;
-        width: clamp(80px, 18vw, 95px); /* Un poco más pequeño en teléfonos */
-    }
-}
-
-.hero-geometry {
-    position: relative;
-    max-width: 100%;
-    width: clamp(340px, 50vh, 500px);  
-    height: clamp(240px, 44vh, 360px); 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0; 
-    transform: scale(0.8) translate3d(0, 0, 0);
-    margin-top: 0; 
-    margin-bottom: 20px; 
-    overflow: visible; 
-    z-index: 2;
-
-    /* OPTIMIZACIÓN GPU: Clave para el movimiento elástico y paralaje del mouse sin lag */
-    will-change: transform, opacity, filter;
-    backface-visibility: hidden;
-}
-
-.hero-geometry .main-shape {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    z-index: 2;
-    position: relative;
-    
-    /* OPTIMIZACIÓN GPU */
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-}
-
-/* EFECTO NEBULOSA ADAPTATIVO */
-.geometry-glow {
-    position: absolute;
-    width: 200%;  
-    height: 100%; 
-    background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 50%, rgba(109, 62, 122, 0.15) 50%, rgba(0, 0, 0, 0) 75%);
-    border-radius: 50%;
-    z-index: 1;
-    filter: blur(min(110px, 10vw)); 
-    pointer-events: none;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) translate3d(0, 0, 0); 
-
-    /* OPTIMIZACIÓN GPU: Evita que el filtro de desenfoque (blur) pesado sature la CPU */
-    will-change: transform, opacity;
-}
-
-/* RESPONSIVO: Ajustes exclusivos para dispositivos móviles */
-@media (max-width: 767px) {
-    .hero-geometry {
-        width: clamp(170px, 25vh, 250px);  
-        height: clamp(120px, 22vh, 180px); 
-        margin-bottom: 10px; 
-    }
-
-    .geometry-glow {
-        width: 180%; 
-        height: 180%;
-        filter: blur(min(50px, 12vw)); 
-    }
-}
-
-.hero-astronaut {
-    position: absolute;
-    width: clamp(150px, 15vw, 300px); 
-    bottom: -20%;
-    right: -90%;
-    z-index: 3;
-    pointer-events: none; 
-
-    /* OPTIMIZACIÓN GPU: Crítico para la flotación continua e ingravidez */
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-}
-@media screen and (max-width: 768px) {
-.hero-astronaut {
-    position: absolute;
-    width: clamp(150px, 15vw, 300px); 
-    bottom: -70%;
-    right: -60%;
-    z-index: 3;
-    pointer-events: none; 
-
-    /* OPTIMIZACIÓN GPU: Crítico para la flotación continua e ingravidez */
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-}}
-
-
-
-.space-rope-svg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1; 
-    pointer-events: none; 
-    overflow: visible;
-
-    /* OPTIMIZACIÓN GPU: Ayuda al cálculo de la física fluida del cable */
-    transform: translate3d(0, 0, 0);
-}
-
-#space-rope {
-    fill: none;
-    stroke: url(#rope-gradient); 
-    stroke-width: 2.5;            
-    stroke-linecap: round;
-    stroke-dasharray: 60, 4; 
-    animation: flowRopeEnergy 15s linear infinite; 
-    filter: drop-shadow(0px 0px 8px rgba(255, 255, 255, 0.8)) drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.6));
-    
-    /* OPTIMIZACIÓN GPU */
-    will-change: stroke-dashoffset;
-}
-
-@keyframes flowRopeEnergy {
-    from {
-        stroke-dashoffset: 1000; 
-    }
-    to {
-        stroke-dashoffset: 0;
-    }
-}
-
-/* Contenedor general que abarca el ancho de la pantalla */
-.asteroid-belt-container {
-    position: absolute;
-    width: 100%;
-    height: auto;
-    bottom: 5%; 
-    left: 0;
-    z-index: 3; 
-    overflow: hidden; 
-    pointer-events: none;
-    display: flex; 
-    justify-content: flex-end; 
-    
-    /* OPTIMIZACIÓN GPU: Envía la huincha completa al hardware de video */
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-}
-
-/* La huincha de asteroides */
-.asteroid-belt-strip {
-    display: block;
-    width: 1500px; 
-    height: auto;
-    max-width: none; 
-    opacity: 0.85;
-    filter: drop-shadow(0px 15px 20px rgba(0, 0, 0, 0.8));
-
-    /* OPTIMIZACIÓN GPU */
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-}
-
-/* Ajustes para Responsivo (Móviles) */
-@media screen and (max-width: 768px) {
-    .asteroid-belt-strip {
-        width: 850px; 
-        max-width: none; 
-        height: auto; 
-        opacity: 0.9; 
-    }
-}
-    /* ==========================================================================
-       4. SECCIÓN SERVICIOS (GRID CÓSMICO)
-       ========================================================================== */
-    .services {
-        min-height: 100vh;
-        padding: 140px 60px;
-        position: relative;
-        background: transparent !important; 
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .services-header {
-        max-width: 800px;
-        margin-bottom: 80px;
-    }
-
-    .services-header span {
-        font-size: 13px;
-        font-weight: 700;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-        color: #b082c7;
-        display: block;
-        margin-bottom: 12px;
-    }
-    
-    .services-header h2 {
-        font-size: 3.5rem;
-        font-weight: 800;
-        line-height: 1.1;
-        letter-spacing: -1px;
-        background: linear-gradient(135deg, #ffffff 0%, #a5a7cc 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .services-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 30px;
-        width: 100%;
-    }
-
-    .cosmic-card {
-        background: rgba(255, 255, 255, 0.01);
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        border-radius: 24px;
-        padding: 50px 40px;
-        position: relative;
-        overflow: hidden;
-        transition: border-color 0.4s, transform 0.4s;
-        cursor: pointer;
-        will-change: transform, border-color;
-    }
-
-    .cosmic-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.035) 0%, rgba(0, 0, 0, 0) 60%);
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.4s;
-    }
-
-    .cosmic-card:hover {
-        border-color: rgba(176, 130, 199, 0.25);
-        transform: translateY(-8px);
-    }
-
-    .cosmic-card:hover::before { 
-        opacity: 1; 
-    }
-
-    .card-icon {
-        width: 50px;
-        height: 50px;
-        margin-bottom: 35px;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .icon-shape {
-        position: absolute;
-        width: 100%; height: 100%;
-        border: 1.5px dashed rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-
-    .cosmic-card:hover .icon-shape {
-        transform: rotate(180deg);
-        border-color: #b082c7;
-        border-style: solid;
-    }
-
-    .icon-center {
-        width: 12px; height: 12px;
-        background: #fff;
-        border-radius: 50%;
-        box-shadow: 0 0 15px #fff;
-        transition: background 0.4s;
-    }
-
-    .cosmic-card:hover .icon-center {
-        background: #b082c7;
-        box-shadow: 0 0 20px #b082c7;
-    }
-
-    .cosmic-card h3 {
-        font-size: 1.6rem;
-        font-weight: 700;
-        margin-bottom: 16px;
-        letter-spacing: -0.5px;
-        color: #fff;
-    }
-
-    .cosmic-card p {
-        font-size: 1rem;
-        color: #8c8d9e;
-        line-height: 1.6;
-    }
-
-    .card-po:hover { box-shadow: 0 20px 50px rgba(139, 92, 246, 0.08); }
-    .card-dev:hover { box-shadow: 0 20px 50px rgba(6, 182, 212, 0.08); }
-    .card-design:hover { box-shadow: 0 20px 50px rgba(236, 72, 153, 0.08); }
-
-    /* ==========================================================================
-       5. PORTFOLIO HORIZONTAL (ANTI-RECORTE EN LAPTOS / 1350PX)
-       ========================================================================== */
-    .portfolio-pin-container {
-        width: 100%;
-        height: 100vh;
-        overflow: hidden;
-        position: relative;
-        background: transparent !important;
-    }
-
-    .portfolio-horizontal {
-        display: flex;
-        height: 100%;
-        width: 270vw; 
-        align-items: center;
-        padding-left: 60px;
-        will-change: transform;
-    }
-
-    .portfolio-intro {
-        width: 45vw; 
-        flex-shrink: 0;
-        padding-right: 40px;
-        z-index: 30;
-    }
-
-    .portfolio-intro span {
-        font-size: 13px;
-        font-weight: 700;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-        color: #06b6d4;
-        display: block;
-        margin-bottom: 12px;
-    }
-
-    .portfolio-intro h2 {
-        font-size: 3.8rem;
-        font-weight: 800;
-        line-height: 1.1;
-        letter-spacing: -1.5px;
-        background: linear-gradient(135deg, #ffffff 0%, #6366f1 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .portfolio-item {
-        width: 95vw; 
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        position: relative;
-        padding-left: 20px;
-        padding-right: 220px; /* Colchón que evita que el celular se pegue al siguiente texto */
-        overflow: visible; 
-    }
-
-    .item-odd { 
-        align-items: flex-start; 
-        padding-top: 8vh; 
-    }
-    .item-even { 
-        align-items: flex-end; 
-        padding-bottom: 8vh; 
-    }
-
-    .project-info {
-        width: 38%;
-        z-index: 20;
-        position: relative;
-    }
-
-    .project-info .num {
-        font-size: 14px;
-        font-weight: 800;
-        color: rgba(255, 255, 255, 0.15);
-        font-family: monospace;
-        margin-bottom: 10px;
-        display: block;
-    }
-
-    .project-info h3 {
-        font-size: 2.3rem;
-        font-weight: 800;
-        margin-bottom: 16px;
-        letter-spacing: -1px;
-        color: #fff;
-    }
-
-    .project-info p {
-        font-size: 0.95rem;
-        color: #9293a4;
-        line-height: 1.6;
-        margin-bottom: 24px;
-    }
-
-    .project-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .project-tags span {
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        padding: 6px 12px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
-        color: #d1d2dc;
-    }
-
-    .project-visual {
-        width: 54%; 
-        height: 52vh; 
-        max-height: 420px;
-        position: relative;
-        overflow: visible; 
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .project-glow-bg {
-        position: absolute;
-        width: 110%;
-        height: 110%;
-        border-radius: 50%;
-        filter: blur(60px);
-        opacity: 0.15;
-        z-index: 1;
-        will-change: transform;
-    }
-
-    .project-screen {
-        position: relative;
-        width: 90%; 
-        height: 100%;
-        background: rgba(10, 10, 25, 0.6);
-        border: 2px solid rgba(99, 102, 241, 0.25); 
-        border-radius: 16px;
-        box-shadow: 0 0 40px rgba(99, 102, 241, 0.15);
-        z-index: 2;
-        overflow: hidden; 
-        transform: perspective(1200px) rotateY(-14deg) rotateX(4deg); 
-        will-change: transform;
-        padding: 10px; 
-    }
-
-    .project-screen img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        filter: brightness(0.95) contrast(1.02); 
-        border-radius: 8px;
-    }
-
-    .project-floating-png {
-        position: absolute;
-        z-index: 3;
-        will-change: transform;
-    }
-
-    .project-floating-png img {
-        width: 100%;
-        height: auto;
-    }
-
-    /* ==========================================================================
-       6. COMPORTAMIENTO MOCKUPS MÓVILES
-       ========================================================================== */
-    .p-float-2 {
-        bottom: -40px; 
-        right: -10px; 
-        width: 26%; 
-        filter: drop-shadow(-15px 20px 30px rgba(0, 0, 0, 0.55));
-        transform: perspective(1200px) rotateY(12deg) rotateX(4deg) rotateZ(-1deg);
-        transition: transform 0.3s ease;
-    }
-
-    .portfolio-item:hover .p-float-2 {
-        transform: perspective(1200px) rotateY(8deg) rotateX(2deg) rotateZ(-1deg) translateY(-5px);
-    }
-
-    .p-float-1 {
-        top: -30px; 
-        right: -10px; 
-        width: 26%; 
-        filter: drop-shadow(15px 20px 30px rgba(0, 0, 0, 0.55));
-        transform: perspective(1200px) rotateY(-12deg) rotateX(4deg) rotateZ(1deg);
-        transition: transform 0.3s ease;
-    }
-
-    .portfolio-item:hover .p-float-1 {
-        transform: perspective(1200px) rotateY(-8deg) rotateX(2deg) rotateZ(1deg) translateY(-5px);
-    }
-
-    /* ==========================================================================
-       7. FOOTER UI
-       ========================================================================== */
-    .ui-footer {
-        width: 100%;
-        padding: 40px 50px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: relative;
-        background: transparent !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.02);
-    }
-
-    .ui-footer p {
-        font-size: 12px;
-        color: #5d5e6f;
-        letter-spacing: 0.5px;
-    }
-
-    .sparkle-icon {
-        width: 24px;
-        height: 24px;
-        background: #d1d2dc;
-        clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
-        opacity: 0.7;
-    }
+ * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #050510;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        #scroll-container {
+            height: 1600vh; 
+        }
+        
+        .viewport {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .viewport-alternate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #02040a 0%, #010204 100%);
+            z-index: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        #starfield, #starfield-alternate {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .global-moon {
+            position: absolute;
+            top: 50%;
+            left: 85%;
+            width: clamp(200px, 32vh, 450px);
+            height: clamp(200px, 32vh, 450px);
+            transform: translate(-50%, -50%) scale(0);
+            background: 
+                linear-gradient(90deg, rgba(5, 5, 16, 0.98) 0%, rgba(5, 5, 16, 0.5) 35%, rgba(255, 255, 255, 0) 65%),
+                url('luna.webp') no-repeat center center;
+            background-size: contain;
+            border-radius: 50%;
+            z-index: 8;
+            pointer-events: none;
+            box-shadow: 0 0 40px rgba(6, 182, 212, 0.12), inset -10px -10px 30px rgba(255, 255, 255, 0.05);
+        }
+
+        .global-moon::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 20%, rgba(139, 92, 246, 0.08) 50%, rgba(0,0,0,0) 75%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: clamp(60px, 8vh, 80px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4%;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px); /* Optimizado */
+            -webkit-backdrop-filter: blur(8px);
+            will-change: transform, opacity;
+            z-index: 1000;
+            box-sizing: border-box;
+            opacity: 0;
+        }
+
+        .logo img {
+            height: clamp(35px, 5vh, 45px);
+            width: auto;
+            display: block;
+        }
+
+        .nav-center {
+            display: flex;
+            gap: clamp(15px, 2vw, 30px);
+        }
+
+        .nav-center a {
+            color: #8a8b9c;
+            text-decoration: none;
+            font-size: clamp(9px, 1vw, 15px);
+            font-weight: 600;
+            margin: 0 clamp(5px, 1vw, 15px);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: color 0.3s, transform 0.3s;
+        }
+        
+        .nav-center a:hover { 
+            color: #fff;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.02);
+            color: #d1d2dc;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: clamp(6px, 1vh, 10px) clamp(12px, 1.2vw, 20px);
+            border-radius: 20px;
+            font-size: clamp(9px, 1vw, 14px);
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #hero { 
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-top: clamp(6vh, 8vh, 12vh);
+            background-position: top 0% left;
+            background-size: clamp(35%, 45vw, 50%);
+            background-repeat: no-repeat;
+            background-image: url('fondo4.webp'); 
+        }
+        
+        .hero-text-container { 
+            z-index: 10;
+            max-width: clamp(600px, 65vw, 900px); 
+            margin-bottom: clamp(10px, 2vh, 25px); 
+            will-change: transform, opacity;
+        }
+        
+        .hero-text-container h1 {
+            opacity: 0;
+            transform: translateY(30px);
+            font-size: clamp(1.8rem, 4.2vw, 3.8rem);
+            font-weight: 700;
+            letter-spacing: 2px;
+            line-height: 1.15;
+            text-transform: uppercase;
+            background: linear-gradient(180deg, #FFFFFF 0%, #D2B7E5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-text-container p {
+            opacity: 0;
+            transform: translateY(20px);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+            margin-top: clamp(10px, 1.5vh, 20px);
+            font-weight: 300;
+        }
+        
+        .triangle-wrapper {
+            position: relative;
+            width: clamp(180px, 20vw, 340px);
+            height: clamp(180px, 20vw, 340px);
+            margin-top: clamp(5px, 1vh, 15px);
+            transform-origin: center center;
+            opacity: 0;
+            transform: scale(0.7);
+            will-change: transform, opacity;
+        }
+
+        .geometry-interactive-node {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            transform-origin: center center;
+        }
+
+        .triangle-container {
+            position: absolute;
+            top: 0px;
+            left: -15px;
+            width: 110%;
+            height: 110%;
+            background: url('Geometria-sideral.webp') no-repeat center/contain;
+            z-index: 2;
+            filter: drop-shadow(0 0 15px rgba(210, 183, 229, 0.45)) drop-shadow(0 0 30px rgba(138, 43, 226, 0.3));
+            will-change: filter;
+        }
+
+        .geometry-glow {
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle, rgba(14, 30, 54, 0.25) 0%, rgba(0,0,0,0) 70%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .floating-element {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            pointer-events: none;
+            z-index: 6;
+            will-change: transform;
+        }
+        
+        .hero-satellite-webp { 
+            top: 35%;
+            left: 8%; 
+            width: clamp(90px, 10vw, 160px); 
+            height: clamp(90px, 10vw, 160px); 
+            background-image: url('satelite.webp');
+        }
+        .hero-astronaut-webp { 
+            bottom: 10%;
+            right: 12%; 
+            width: clamp(140px, 15vw, 220px); 
+            height: clamp(200px, 21vw, 310px); 
+            background-image: url('astronauta.webp');
+        }
+        .hero-asteroids-webp { 
+            bottom: 0px;
+            right: -250px; 
+            width: 100%; 
+            height: clamp(180px, 25vw, 350px); 
+            background-image: url('asteroide1.webp'); 
+            z-index: 7;
+        }
+
+        #services { 
+            z-index: 4;
+            opacity: 0; 
+            justify-content: flex-start;
+            align-items: flex-start;
+            padding: 0 6%;
+            text-align: left;
+        }
+        .services-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .services-left {
+            max-width: 65%;
+            z-index: 5;
+        }
+        .services-title {
+            font-size: clamp(1.4rem, 2.2vw, 2.2rem);
+            font-weight: 600;
+            margin-bottom: clamp(20px, 3vh, 40px);
+            line-height: 1.25;
+            max-width: 550px;
+            color: #fff;
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(12px, 1.5vw, 20px);
+        }
+        .service-card {
+            background: rgba(2, 6, 23, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: clamp(20px, 3vh, 35px) clamp(14px, 1.8vw, 24px);
+            border-radius: 4px;
+            backdrop-filter: blur(8px); /* Optimizado */
+            -webkit-backdrop-filter: blur(8px);
+            will-change: transform, opacity;
+            text-align: left;
+            opacity: 0.25;
+            filter: grayscale(1) brightness(0.4);
+            transition: border-color 0.5s ease, box-shadow 0.5s ease;
+        }
+        .card-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #fff;
+            border-radius: 50%;
+            margin-bottom: clamp(12px, 2vh, 20px);
+        }
+        .service-card h3 {
+            font-size: clamp(0.9rem, 1vw, 1.1rem);
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+        .service-card p {
+            font-size: clamp(0.7rem, 0.75vw, 0.8rem);
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 300;
+        }
+        
+        .services-astronaut {
+            position: absolute;
+            right: -35%; 
+            bottom: -50%; 
+            width: clamp(280px, 28vw, 440px);
+            height: clamp(330px, 33vw, 500px);
+            background-image: url('astronauta2.webp'); 
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 4;
+            pointer-events: none;
+            transform: rotate(25deg); 
+        }
+
+        .services-triangle-anchor {
+            position: absolute;
+            top: 60%; 
+            right: 120%; 
+            width: clamp(280px, 28vw, 440px);
+            height: clamp(280px, 28vw, 440px);
+            z-index: 2;
+            pointer-events: none;
+            opacity: 1;
+            background: url('Geometria2.webp') no-repeat center/contain;
+            transform-origin: center center;
+        }
+
+        #portfolio { 
+            z-index: 9;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 6%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .portfolio-orbit-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .project-details-card {
+            max-width: clamp(380px, 35vw, 500px);
+            z-index: 20;
+            position: relative;
+            pointer-events: none;
+            text-align: left;
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+
+        .project-meta {
+            font-size: clamp(10px, 0.9vw, 13px);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #a78bfa;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .project-title {
+            font-size: clamp(1.8rem, 3.2vw, 3.2rem);
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #bca1ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .project-desc {
+            font-size: clamp(0.85rem, 1vw, 1.05rem);
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+            margin-bottom: clamp(20px, 3vh, 35px);
+        }
+
+        .project-btn {
+            background: linear-gradient(90deg, #6d28d9 0%, #4f46e5 100%);
+            color: #fff;
+            border: none;
+            padding: clamp(10px, 1.2vh, 14px) clamp(20px, 2vw, 30px);
+            border-radius: 30px;
+            font-size: clamp(11px, 1vw, 14px);
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
+            transition: all 0.3s ease;
+        }
+
+        .project-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.5);
+        }
+
+        .orbit-visual-container {
+            position: absolute;
+            right: 0%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 55vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .gravity-ring {
+            position: absolute;
+            border: 1px solid rgba(139, 92, 246, 0.08);
+            border-radius: 50%;
+            pointer-events: none;
+            transform-style: preserve-3d;
+        }
+        
+        .ring-main {
+            width: 68vh;
+            height: 46vh;
+            transform: rotate(-15deg);
+        }
+
+        .ring-secondary {
+            width: 74vh;
+            height: 50vh;
+            transform: rotate(-15deg) scale(1.08);
+            border: 1px dashed rgba(167, 139, 250, 0.05);
+        }
+
+        .orbit-node {
+            position: absolute;
+            width: clamp(110px, 14vh, 160px);
+            height: clamp(110px, 14vh, 160px);
+            cursor: pointer;
+            pointer-events: all;
+            transform-origin: center center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+
+        .orbit-triangle-mesh {
+            width: 100%;
+            height: 100%;
+            background: url('Geometria-sideral.webp') no-repeat center/contain;
+            opacity: 0;
+            transform: scale(0.2);
+            filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0));
+            transition: filter 0.4s ease, opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .orbit-node::before {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #06b6d4;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #06b6d4, 0 0 30px rgba(6, 182, 212, 0.95);
+            transition: all 0.4s ease;
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        .orbit-node::after {
+            content: '';
+            position: absolute;
+            width: 38px;
+            height: 38px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 1) 0%, rgba(6, 182, 212, 0) 70%);
+            clip-path: polygon(50% 0%, 54% 46%, 100% 50%, 54% 54%, 50% 100%, 46% 54%, 0% 50%, 46% 46%);
+            transition: all 0.4s ease;
+            opacity: 0.95;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                transform: scale(0.85);
+                box-shadow: 0 0 12px rgba(6, 182, 212, 0.7), 0 0 25px rgba(6, 182, 212, 0.4);
+            }
+            50% {
+                transform: scale(1.3);
+                box-shadow: 0 0 22px rgba(6, 182, 212, 1), 0 0 40px rgba(6, 182, 212, 0.8);
+            }
+        }
+
+        .orbit-node.focused .orbit-triangle-mesh {
+            opacity: 1;
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 25px rgba(6, 182, 212, 0.75)) brightness(1.2);
+        }
+
+        .orbit-node.focused::before,
+        .orbit-node.focused::after {
+            opacity: 0;
+            transform: scale(0);
+            pointer-events: none;
+        }
+
+        .orbit-astronaut-bg {
+            position: absolute;
+            left: -150%; 
+            top: 120%;
+            width: clamp(160px, 14vh, 230px);
+            height: clamp(160px, 14vh, 230px);
+            pointer-events: none;
+            z-index: 2;
+            transform: scale(5.5) rotate(-30deg);
+            will-change: transform, left, top;
+            rotate: 10deg;
+        }
+
+        .rocket-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            will-change: opacity;
+        }
+
+        .rocket-layer.on {
+            background-image: url('cohete.webp');
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .rocket-layer.off {
+            background-image: url('cohete2.webp');
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .orbit-asteroid-left {
+            position: absolute;
+            left: -150%;
+            bottom: -50%;
+            width: clamp(500px, 25vh, 350px);
+            height: clamp(500px, 25vh, 350px);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .orbit-asteroid-inner {
+            width: 100%;
+            height: 100%;
+            background: url('asteroide-orbit.webp') no-repeat center/contain;
+        }
+
+        #contact { 
+            z-index: 11;
+            opacity: 0; 
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .earth-crust {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45vh;
+            background: url('curvatura_tierra.webp') no-repeat center bottom / cover;
+            z-index: 1;
+            transform: translateY(100%);
+            will-change: transform;
+        }
+        
+        .contact-ship { 
+            position: absolute;
+            background: url('nave_acercamiento.webp') no-repeat center/contain;
+            width: clamp(80px, 10vw, 150px); 
+            height: clamp(80px, 10vw, 150px); 
+            top: 20%;
+            left: -20%;
+            z-index: 2;
+            pointer-events: none;
+            filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.6));
+        }
+
+        .contact-content {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 20px;
+            text-align: center;
+            transform: translateY(50px);
+        }
+
+        .contact-content h2 {
+            font-size: clamp(2rem, 3.5vw, 3.5rem);
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: rgba(5, 5, 16, 0.6);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(8px); /* Optimizado */
+            -webkit-backdrop-filter: blur(8px);
+            will-change: transform, opacity;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            color: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            border-color: rgba(139, 92, 246, 0.8);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+        }
+
+        .contact-form textarea {
+            resize: none;
+        }
+
+        .submit-btn {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #06b6d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            text-transform: uppercase;
+            animation: neon-pulse 2s infinite;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: rgba(6, 182, 212, 0.15);
+            transform: translateY(-2px);
+        }
+
+        @keyframes neon-pulse {
+            0% { box-shadow: 0 0 5px rgba(6, 182, 212, 0.4), inset 0 0 5px rgba(6, 182, 212, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.7), inset 0 0 10px rgba(139, 92, 246, 0.5); border-color: #8b5cf6; }
+            100% { box-shadow: 0 0 5px rgba(6, 182, 212, 0.4), inset 0 0 5px rgba(6, 182, 212, 0.4); }
+        }
+
+        #nubes-atmosfera {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 50; 
+            pointer-events: none;
+            transform: translateY(100vh);
+            transform-origin: center center;
+            will-change: transform, opacity, filter;
+            background: url('nubes_transicion.webp') no-repeat center/cover;
+        }
+
+        #landing {
+            z-index: 12;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .landing-scene {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60vh;
+            background: url('paisaje_oasis.webp') no-repeat center bottom / cover;
+            z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; 
+        }
+
+        .water-pond {
+            position: relative;
+            width: 100%;
+            height: 25vh; 
+            background: linear-gradient(to bottom, rgba(5, 5, 16, 0.8), rgba(2, 4, 10, 1));
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        .landing-triangle-wrapper {
+            position: absolute;
+            top: -160px; 
+            width: 180px;
+            height: 180px;
+            z-index: 10;
+            animation: float-bob 4s ease-in-out infinite;
+        }
+
+        .landing-triangle {
+            width: 100%;
+            height: 100%;
+            background: url('Geometria-sideral.webp') no-repeat center/contain;
+            filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.8));
+        }
+
+        .landing-reflection {
+            position: absolute;
+            top: 10px; 
+            width: 180px;
+            height: 180px;
+            background: url('Geometria-sideral.webp') no-repeat center/contain;
+            transform: scaleY(-1); 
+            opacity: 0.5;
+            filter: blur(3px) drop-shadow(0 0 15px rgba(6, 182, 212, 0.5));
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+            animation: float-bob-reflection 4s ease-in-out infinite;
+        }
+
+        @keyframes float-bob {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes float-bob-reflection {
+            0%, 100% { transform: scaleY(-1) translateY(0px); }
+            50% { transform: scaleY(-1) translateY(15px); }
+        }
+
+        .landing-content {
+            position: absolute;
+            bottom: 30vh; 
+            z-index: 15;
+            text-align: center;
+        }
+
+        .landing-content p {
+            font-size: clamp(1rem, 1.5vw, 1.5rem);
+            letter-spacing: 4px;
+            color: #d1d2dc;
+            font-weight: 300;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .minimal-footer {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            z-index: 15;
+        }
+
+        .social-links {
+            margin-bottom: 10px;
+        }
+
+        .social-links a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: #06b6d4;
+        }
+
+        .minimal-footer p {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.75rem;
+        }
+
+        /* ==========================================
+           NUEVAS MEDIA QUERIES RESPONSIVAS
+           ========================================== */
+        @media (max-width: 768px) {
+            .floating-element, 
+            .services-astronaut, 
+            .services-triangle-anchor,
+            .orbit-asteroid-left,
+            .contact-ship {
+                display: none !important;
+            }
+
+            #scroll-container {
+                height: 1000vh !important;
+            }
+
+            #hero {
+                background-size: 80% !important;
+                padding-top: 15vh;
+            }
+            .hero-text-container h1 {
+                font-size: clamp(1.6rem, 7vw, 2.5rem);
+            }
+            .triangle-wrapper {
+                width: 220px;
+                height: 220px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            header {
+                padding: 0 5%;
+            }
+            .nav-center {
+                display: none; 
+            }
+            .header-btn {
+                font-size: 12px;
+                padding: 8px 14px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .services-left {
+                max-width: 100% !important;
+            }
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            #portfolio {
+                flex-direction: column;
+                justify-content: center;
+                padding: 5vh 5%;
+            }
+            .portfolio-orbit-wrapper {
+                flex-direction: column;
+                justify-content: center;
+            }
+            .project-details-card {
+                max-width: 100%;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .orbit-visual-container {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 100%;
+                height: 40vh;
+            }
+            .ring-main {
+                width: 320px;
+                height: 220px;
+            }
+            .ring-secondary {
+                width: 350px;
+                height: 240px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            #services {
+                padding: 0 5%;
+            }
+            .services-grid {
+                grid-template-columns: 1fr !important;
+                gap: 12px;
+            }
+            .service-card {
+                padding: 16px;
+            }
+
+            .contact-content {
+                max-width: 100%;
+                padding: 0 15px;
+            }
+            .contact-form {
+                padding: 20px;
+            }
+            .earth-crust {
+                height: 30vh;
+            }
+        }
