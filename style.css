@@ -363,7 +363,7 @@
             z-index: 2;
             pointer-events: none;
             opacity: 1;
-            background: url('Geometria2.webp') no-repeat center/contain;
+            background: url('geometria2.webp') no-repeat center/contain;
             transform-origin: center center;
         }
 
