@@ -49,7 +49,7 @@
         
         .global-moon {
             position: absolute;
-            top: 50%;
+            top: 51%;
             left: 85%;
             width: clamp(200px, 32vh, 450px);
             height: clamp(200px, 32vh, 450px);
