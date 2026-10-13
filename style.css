@@ -551,19 +551,17 @@
             transform: scale(0);
             pointer-events: none;
         }
-
-        .orbit-astronaut-bg {
-            position: absolute;
-            left: -150%; 
-            top: 120%;
-            width: clamp(160px, 14vh, 230px);
-            height: clamp(160px, 14vh, 230px);
-            pointer-events: none;
-            z-index: 2;
-            transform: scale(5.5) rotate(-30deg);
-            will-change: transform, left, top;
-            rotate: 10deg;
-        }
+.orbit-astronaut-bg {
+    position: absolute;
+    left: -100%; 
+    top: 120%;
+    width: clamp(160px, 14vh, 230px);
+    height: clamp(160px, 14vh, 230px);
+    pointer-events: none;
+    z-index: 2;
+    transform: scale(1.5) rotate(-30deg);
+    will-change: transform, left, top;
+}
 
         .rocket-layer {
             position: absolute;
